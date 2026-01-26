@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // routes (Better auth routes)
 app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
+
 // Check Health
 app.get('/', (req, res) => {
 	res.send('Hello World');
