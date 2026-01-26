@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"dbPush": "npx prisma db push",
+		"dbpush": "npx prisma db push",
 		"dev": "npx tsx watch ./src/server.ts",
 		"seed:admin": "npx tsx src/scripts/seedAdmin.ts",
 		"prisma:studio": "npx prisma studio",

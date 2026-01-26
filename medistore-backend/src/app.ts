@@ -6,6 +6,8 @@ import express, { Application } from 'express';
 import errorHandler from './middleware/globalErrorHandler';
 import { notFound } from './middleware/notFound';
 
+import { auth } from './lib/auth';
+
 const app: Application = express();
 
 app.use(
@@ -16,6 +18,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.get('/', (req, res) => {
 	res.send('Hello World');
