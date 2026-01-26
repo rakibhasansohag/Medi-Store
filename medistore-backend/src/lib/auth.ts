@@ -59,7 +59,7 @@ export const auth = betterAuth({
     <p>Hi ${user.name ?? 'there'},</p>
 
     <p>
-      Thanks for signing up for <strong>Prisma Blog</strong>.
+      Thanks for signing up for <strong>Prisma MediStore</strong>.
       Please confirm your email address by clicking the button below.
     </p>
 
@@ -95,7 +95,7 @@ export const auth = betterAuth({
     <br />
 
     <p>
-      — Prisma Blog Team
+      — Prisma MediStore Team
     </p>
   </div>
 `;
@@ -105,7 +105,7 @@ Verify your email address
 
 Hi ${user.name ?? 'there'},
 
-Thanks for signing up for Prisma Blog.
+Thanks for signing up for Prisma MediStore.
 Please verify your email by visiting the link below:
 
 ${verificationUrl}
@@ -113,7 +113,7 @@ ${verificationUrl}
 This link will expire soon.
 If you didn’t create an account, ignore this email.
 
-— Prisma Blog Team
+— Prisma MediStore Team
 `;
 
 				const info = await transporter.sendMail({
