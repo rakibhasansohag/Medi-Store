@@ -22,7 +22,7 @@ export const auth = betterAuth({
 		additionalFields: {
 			role: {
 				type: 'string',
-				defaultValue: 'USER',
+				defaultValue: 'CUSTOMER',
 				required: false,
 			},
 			phone: {
@@ -51,7 +51,7 @@ export const auth = betterAuth({
 				const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
 
 				const html = `
-				
+
   <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <h2>Verify your email address</h2>
 
@@ -116,7 +116,7 @@ If you didn’t create an account, ignore this email.
 `;
 
 				const info = await transporter.sendMail({
-					from: '"Prisma Blog" <prismabLog@gmail.email>',
+					from: '"Prisma Medistore" <admin@medistore.com>',
 					to: user.email,
 					subject: 'Verify your email address',
 					text: text,

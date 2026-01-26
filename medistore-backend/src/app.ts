@@ -19,7 +19,7 @@ app.use(
 
 app.use(express.json());
 
-app.all('/api/auth/*splat', toNodeHandler(auth));
+app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
 app.get('/', (req, res) => {
 	res.send('Hello World');
