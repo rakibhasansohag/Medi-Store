@@ -9,6 +9,7 @@ import { notFound } from './middleware/notFound';
 
 import { auth } from './lib/auth';
 import { categoryRouter } from './modules/category/category.route';
+import { medicineRouter } from './modules/medicine/medicine.route';
 
 const app: Application = express();
 
@@ -29,6 +30,7 @@ app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
 // Routes for Services and Apis
 app.use('/api/v1/category', categoryRouter);
+app.use('/api/medicines', medicineRouter);
 
 // Check Health
 app.get('/', (req, res) => {
@@ -36,7 +38,6 @@ app.get('/', (req, res) => {
 });
 
 app.use(errorHandler);
-
 app.use(notFound);
 
 export default app;
