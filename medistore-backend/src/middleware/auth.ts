@@ -1,34 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { auth as betterAuth } from '../lib/auth';
+import { UserRole, IUser, UserStatus } from '../types';
 
 declare global {
 	namespace Express {
 		interface Request {
-			user?: {
-				id: string;
-				email: string;
-				name: string;
-				role: string;
-				emailVerified: boolean;
-			};
+			user?: IUser;
 		}
 	}
-}
-
-export enum UserRole {
-	CUSTOMER = 'CUSTOMER',
-	SELLER = 'SELLER',
-	ADMIN = 'ADMIN',
 }
 
 const CheckRole = (...roles: UserRole[]) => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			console.log(req);
-
-			// Get user session
 			const session = await betterAuth.api.getSession({
-				headers: req.headers as any,
+				headers: req.headers as Record<string, string>,
 			});
 
 			if (!session) {
@@ -49,18 +35,20 @@ const CheckRole = (...roles: UserRole[]) => {
 				id: session.user.id,
 				email: session.user.email,
 				name: session.user.name,
-				role: session.user.role as string,
+				role: session.user.role as UserRole,
+				status: session.user.status as UserStatus,
 				emailVerified: session.user.emailVerified,
+				phone: session.user.phone as string | undefined,
 			};
 
-			if (roles.length && !roles.includes(req.user.role as UserRole)) {
+			if (roles.length && !roles.includes(req?.user?.role)) {
 				return res.status(403).json({
 					success: false,
 					message: 'Forbidden Access! You are not authorized',
 				});
 			}
 
-			next(); // request continues
+			next();
 		} catch (error) {
 			next(error);
 		}
@@ -68,3 +56,4 @@ const CheckRole = (...roles: UserRole[]) => {
 };
 
 export default CheckRole;
+export { UserRole };
