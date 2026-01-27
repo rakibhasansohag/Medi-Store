@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
 // Routes for Services and Apis
-app.use('/api/v1/category', categoryRouter);
+app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/medicines', medicineRouter);
 
 // Check Health
