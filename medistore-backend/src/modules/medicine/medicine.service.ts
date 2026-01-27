@@ -102,7 +102,9 @@ const getAllMedicines = async (
 	};
 };
 
-const getMedicineById = async (id: string): Promise<IMedicine | null> => {
+const getMedicineById = async (
+	id: string,
+): Promise<IMedicine | null | undefined> => {
 	return await prisma.medicine.findUnique({
 		where: { id },
 		include: {

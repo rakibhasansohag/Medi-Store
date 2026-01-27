@@ -11,6 +11,8 @@ function errorHandler(
 	let errorMessage = 'Internal Server Error';
 	let errorDetails = err;
 
+	console.error('DEBUG ERROR:', errorDetails);
+
 	// Prisma validation error
 	if (err instanceof Prisma.PrismaClientValidationError) {
 		statusCode = 400;

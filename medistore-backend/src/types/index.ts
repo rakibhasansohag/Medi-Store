@@ -25,8 +25,8 @@ export interface ICategory {
 	id: string;
 	name: string;
 	slug: string;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 export interface ICreateCategoryInput {
@@ -47,7 +47,7 @@ export interface IMedicine {
 	manufacturer: string;
 	price: number;
 	stock: number;
-	imageUrl?: string;
+	imageUrl?: string | null;
 	categoryId: string;
 	sellerId: string;
 	category?: ICategory;
