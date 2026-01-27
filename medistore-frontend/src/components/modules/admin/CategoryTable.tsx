@@ -24,7 +24,10 @@ export function CategoryTable({ categories }: CategoryTableProps) {
 
 	console.log(categories);
 
+	// TODO : NEED TO ADDED EDIT CATEGORY
+
 	const handleDelete = async (id: string, name: string) => {
+		// TODO : For the confirmation we will use good aniamtion of confirm dialog
 		if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
 		setIsDeleting(id);
