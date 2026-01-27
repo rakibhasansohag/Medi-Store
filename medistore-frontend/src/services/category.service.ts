@@ -10,8 +10,8 @@ export const categoryService = {
 				next: { tags: ['categories'] },
 			});
 
-			const data = await res.json();
-			return { success: true, message: 'Success', data };
+			return await res.json();
+			
 		} catch (error) {
 			return {
 				success: false,
@@ -26,8 +26,8 @@ export const categoryService = {
 	): Promise<IApiResponse<{ data: ICategory }>> => {
 		try {
 			const res = await fetch(`${API_URL}/categories/${id}`);
-			const data = await res.json();
-			return { success: true, message: 'Success', data };
+			return await res.json();
+		
 		} catch (error) {
 			return {
 				success: false,

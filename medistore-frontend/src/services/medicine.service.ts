@@ -1,5 +1,6 @@
 import { env } from '@/env';
 import { IApiResponse, IMedicine, IPaginatedResponse } from '@/types';
+import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
 const API_URL = env.API_URL;
@@ -32,8 +33,8 @@ export const medicineService = {
 				next: { tags: ['medicines'] },
 			});
 
-			const data = await res.json();
-			return { success: true, message: 'Success', data: data.data };
+			return await res.json();
+			// return { success: true, message: 'Success', data: data.data };
 		} catch (error) {
 			return {
 				success: false,
@@ -51,8 +52,8 @@ export const medicineService = {
 				cache: 'no-store',
 			});
 
-			const data = await res.json();
-			return { success: true, message: 'Success', data };
+			return await res.json();
+			// return { success: true, message: 'Success', data };
 		} catch (error) {
 			return {
 				success: false,
@@ -85,6 +86,8 @@ export const medicineService = {
 					message: data.message || 'Failed to create medicine',
 				};
 			}
+
+			console.log('create Mediciene', data);
 
 			return {
 				success: true,
@@ -125,11 +128,17 @@ export const medicineService = {
 				};
 			}
 
-			return {
-				success: true,
-				message: 'Medicine updated successfully',
-				data: data.data,
-			};
+			console.log('update Mediciene', data);
+
+			revalidateTag('medicines', 'max');
+
+			return data;
+
+			// return {
+			// 	success: true,
+			// 	message: 'Medicine updated successfully',
+			// 	data: data.data,
+			// };
 		} catch (error) {
 			return {
 				success: false,
@@ -158,6 +167,10 @@ export const medicineService = {
 					message: data.message || 'Failed to delete medicine',
 				};
 			}
+
+			console.log('delete Mediciene', data);
+
+			revalidateTag('medicines', 'max');
 
 			return {
 				success: true,
@@ -192,11 +205,13 @@ export const medicineService = {
 				};
 			}
 
-			return {
-				success: true,
-				message: 'Success',
-				data: data.data,
-			};
+			return data;
+
+			// return {
+			// 	success: true,
+			// 	message: 'Success',
+			// 	data: data.data,
+			// };
 		} catch (error) {
 			return {
 				success: false,
