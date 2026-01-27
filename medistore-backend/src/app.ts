@@ -8,6 +8,7 @@ import errorHandler from './middleware/globalErrorHandler';
 import { notFound } from './middleware/notFound';
 
 import { auth } from './lib/auth';
+import { categoryRouter } from './modules/category/category.route';
 
 const app: Application = express();
 
@@ -19,12 +20,15 @@ app.use(
 		credentials: true,
 	}),
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // routes (Better auth routes)
 app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
+// Routes for Services and Apis
+app.use('/api/v1/category', categoryRouter);
 
 // Check Health
 app.get('/', (req, res) => {
