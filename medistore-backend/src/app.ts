@@ -30,7 +30,7 @@ app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
 // Routes for Services and Apis
 app.use('/api/v1/category', categoryRouter);
-app.use('/api/medicines', medicineRouter);
+app.use('/api/v1/medicines', medicineRouter);
 
 // Check Health
 app.get('/', (req, res) => {
