@@ -1,3 +1,5 @@
+import { ORDERSTATUS } from '../../generated/prisma/enums';
+
 // ============= USER & AUTH TYPES =============
 export enum UserRole {
 	CUSTOMER = 'CUSTOMER',
@@ -131,3 +133,38 @@ export type IApiResponse<T = unknown> = ISuccessResponse<T> | IErrorResponse;
 export interface IAuthenticatedRequest extends Request {
 	user?: IUser;
 }
+
+// ============= ORDER TYPES =============
+
+export interface IOrder {
+	id: string;
+	orderNumber: string;
+	customerId: string;
+	shippingAddress: string;
+	totalAmount: number;
+	status: ORDERSTATUS;
+	items: IOrderItem[];
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface IOrderItem {
+	id: string;
+	orderId: string;
+	medicineId: string;
+	quantity: number;
+	price: number;
+	medicine?: IMedicine;
+}
+
+export interface ICreateOrderInput {
+	shippingAddress: string;
+	phone: string;
+	items: {
+		medicineId: string;
+		quantity: number;
+		price: number;
+	}[];
+}
+
+export { ORDERSTATUS };

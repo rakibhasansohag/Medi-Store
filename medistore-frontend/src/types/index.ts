@@ -6,6 +6,7 @@ export interface IUser {
 	role: 'CUSTOMER' | 'SELLER' | 'ADMIN';
 	status: 'ACTIVE' | 'BANNED';
 	emailVerified: boolean;
+	phone?: string;
 }
 
 export interface ILoginInput {
@@ -66,5 +67,45 @@ export interface IRoute {
 		title: string;
 		url: string;
 		icon?: React.ComponentType<{ className?: string }>;
+	}[];
+}
+
+// ============= ORDER =============
+
+export enum OrderStatus {
+	PLACED = 'PLACED',
+	PROCESSING = 'PROCESSING',
+	SHIPPED = 'SHIPPED',
+	DELIVERED = 'DELIVERED',
+	CANCELLED = 'CANCELLED',
+}
+
+export interface IOrderItem {
+	id: string;
+	medicineId: string;
+	medicine?: IMedicine;
+	quantity: number;
+	price: number;
+}
+
+export interface IOrder {
+	id: string;
+	orderNumber: string;
+	customerId: string;
+	shippingAddress: string;
+	totalAmount: number;
+	status: OrderStatus;
+	items: IOrderItem[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface ICreateOrderInput {
+	shippingAddress: string;
+	phone: string;
+	items: {
+		medicineId: string;
+		quantity: number;
+		price: number;
 	}[];
 }
