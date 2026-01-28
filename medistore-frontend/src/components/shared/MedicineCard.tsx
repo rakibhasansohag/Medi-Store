@@ -12,7 +12,7 @@ interface MedicineCardProps {
 
 export function MedicineCard({ medicine }: MedicineCardProps) {
 	return (
-		<Card className='group h-full flex flex-col transition-all hover:shadow-lg'>
+		<Card className='group h-full flex flex-col transition-all hover:shadow-lg pt-0'>
 			<Link href={`/shop/${medicine.id}`}>
 				<div className='relative w-full aspect-square overflow-hidden rounded-t-lg bg-muted'>
 					{medicine.imageUrl ? (
