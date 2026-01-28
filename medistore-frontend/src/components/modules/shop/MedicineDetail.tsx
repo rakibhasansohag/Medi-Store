@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useCart } from '@/hooks/useCart';
 
 interface MedicineDetailProps {
 	medicine: IMedicine;
@@ -23,9 +24,10 @@ interface MedicineDetailProps {
 
 export function MedicineDetail({ medicine }: MedicineDetailProps) {
 	const [quantity, setQuantity] = useState(1);
+	const { addItem } = useCart();
 
 	const handleAddToCart = () => {
-		// TODO: Implement cart functionality
+		addItem(medicine, quantity);
 		toast.success(`Added ${quantity} ${medicine.name} to cart`);
 	};
 
