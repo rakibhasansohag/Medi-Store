@@ -7,7 +7,7 @@ const router = express.Router();
 // Customer routes
 router.get(
 	'/my-orders',
-	CheckRole(UserRole.CUSTOMER, UserRole.SELLER),
+	CheckRole(UserRole.CUSTOMER),
 	OrderController.getMyOrders,
 );
 
