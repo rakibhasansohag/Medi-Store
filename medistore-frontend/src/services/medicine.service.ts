@@ -52,8 +52,8 @@ export const medicineService = {
 				cache: 'no-store',
 			});
 
-			return await res.json();
-			// return { success: true, message: 'Success', data };
+			const data = await res.json();
+			return { success: true, message: 'Success', data };
 		} catch (error) {
 			return {
 				success: false,
@@ -132,13 +132,11 @@ export const medicineService = {
 
 			revalidateTag('medicines', 'max');
 
-			return data;
-
-			// return {
-			// 	success: true,
-			// 	message: 'Medicine updated successfully',
-			// 	data: data.data,
-			// };
+			return {
+				success: true,
+				message: 'Medicine updated successfully',
+				data: data.data,
+			};
 		} catch (error) {
 			return {
 				success: false,
@@ -205,13 +203,13 @@ export const medicineService = {
 				};
 			}
 
-			return data;
+			// return data;
 
-			// return {
-			// 	success: true,
-			// 	message: 'Success',
-			// 	data: data.data,
-			// };
+			return {
+				success: true,
+				message: 'Success',
+				data: data.data,
+			};
 		} catch (error) {
 			return {
 				success: false,
