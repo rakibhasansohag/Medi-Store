@@ -5,12 +5,23 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { IMedicine } from '@/types';
 import { ShoppingCart } from 'lucide-react';
+import { useCart } from '../../hooks/useCart';
+import { toast } from 'sonner';
 
 interface MedicineCardProps {
 	medicine: IMedicine;
 }
 
 export function MedicineCard({ medicine }: MedicineCardProps) {
+	const { addItem } = useCart();
+
+	const handleAddToCart = (e: React.MouseEvent) => {
+		e.preventDefault();
+		addItem(medicine, 1);
+
+		toast.success(`Added ${medicine.name} to cart`);
+	};
+
 	return (
 		<Card className='group h-full flex flex-col transition-all hover:shadow-lg pt-0'>
 			<Link href={`/shop/${medicine.id}`}>
@@ -55,9 +66,14 @@ export function MedicineCard({ medicine }: MedicineCardProps) {
 			</CardContent>
 
 			<CardFooter className='p-4 pt-0'>
-				<Button className='w-full' size='sm'>
+				<Button
+					className='w-full'
+					size='sm'
+					onClick={handleAddToCart}
+					disabled={medicine.stock === 0}
+				>
 					<ShoppingCart className='mr-2 h-4 w-4' />
-					Add to Cart
+					{medicine.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
 				</Button>
 			</CardFooter>
 		</Card>
