@@ -17,6 +17,7 @@ import { deleteMedicine } from '@/actions/medicine.action';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
 
 interface MedicineTableProps {
 	medicines: IMedicine[];
@@ -24,14 +25,22 @@ interface MedicineTableProps {
 
 export function MedicineTable({ medicines }: MedicineTableProps) {
 	const [isDeleting, setIsDeleting] = useState<string | null>(null);
+	const [deleteDialog, setDeleteDialog] = useState<{
+		open: boolean;
+		id: string;
+		name: string;
+	}>({
+		open: false,
+		id: '',
+		name: '',
+	});
 
-	const handleDelete = async (id: string, name: string) => {
-		if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+	const handleDelete = async () => {
+		setIsDeleting(deleteDialog.id);
+		setDeleteDialog({ open: false, id: '', name: '' });
+		const loadingToast = toast.loading('Deleting category...');
 
-		setIsDeleting(id);
-		const loadingToast = toast.loading('Deleting medicine...');
-
-		const result = await deleteMedicine(id);
+		const result = await deleteMedicine(deleteDialog.id);
 
 		if (result.success) {
 			toast.success(result.message, { id: loadingToast });
@@ -54,72 +63,87 @@ export function MedicineTable({ medicines }: MedicineTableProps) {
 	}
 
 	return (
-		<div className='border rounded-lg'>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead>Medicine</TableHead>
-						<TableHead>Category</TableHead>
-						<TableHead>Price</TableHead>
-						<TableHead>Stock</TableHead>
-						<TableHead className='text-right'>Actions</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{medicines.map((medicine) => (
-						<TableRow key={medicine.id}>
-							<TableCell>
-								<div className='flex items-center gap-3'>
-									{medicine.imageUrl && (
-										<div className='relative w-10 h-10 rounded-md overflow-hidden'>
-											<Image
-												src={medicine.imageUrl}
-												alt={medicine.name}
-												fill
-												className='object-cover'
-											/>
-										</div>
-									)}
-									<div>
-										<p className='font-medium'>{medicine.name}</p>
-										<p className='text-sm text-muted-foreground'>
-											{medicine.manufacturer}
-										</p>
-									</div>
-								</div>
-							</TableCell>
-							<TableCell>
-								<Badge variant='secondary'>{medicine.category?.name}</Badge>
-							</TableCell>
-							<TableCell>${medicine.price.toFixed(2)}</TableCell>
-							<TableCell>
-								<Badge
-									variant={medicine.stock > 10 ? 'default' : 'destructive'}
-								>
-									{medicine.stock} units
-								</Badge>
-							</TableCell>
-							<TableCell className='text-right'>
-								<div className='flex justify-end gap-2'>
-									<Button asChild variant='ghost' size='icon'>
-										<Link href={`/dashboard/medicines/${medicine.id}/edit`}>
-											<Pencil className='h-4 w-4' />
-										</Link>
-									</Button>
-									<Button
-										variant='ghost'
-										size='icon'
-										onClick={() => handleDelete(medicine.id, medicine.name)}
-										disabled={isDeleting === medicine.id}
-									>
-										<Trash2 className='h-4 w-4' />
-									</Button>
-								</div>
-							</TableCell>
+		<>
+			<div className='border rounded-lg'>
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>Medicine</TableHead>
+							<TableHead>Category</TableHead>
+							<TableHead>Price</TableHead>
+							<TableHead>Stock</TableHead>
+							<TableHead className='text-right'>Actions</TableHead>
 						</TableRow>
-					))}
-				</TableBody>
-			</Table>
-		</div>
+					</TableHeader>
+					<TableBody>
+						{medicines.map((medicine) => (
+							<TableRow key={medicine.id}>
+								<TableCell>
+									<div className='flex items-center gap-3'>
+										{medicine.imageUrl && (
+											<div className='relative w-10 h-10 rounded-md overflow-hidden'>
+												<Image
+													src={medicine.imageUrl}
+													alt={medicine.name}
+													fill
+													className='object-cover'
+												/>
+											</div>
+										)}
+										<div>
+											<p className='font-medium'>{medicine.name}</p>
+											<p className='text-sm text-muted-foreground'>
+												{medicine.manufacturer}
+											</p>
+										</div>
+									</div>
+								</TableCell>
+								<TableCell>
+									<Badge variant='secondary'>{medicine.category?.name}</Badge>
+								</TableCell>
+								<TableCell>${medicine.price.toFixed(2)}</TableCell>
+								<TableCell>
+									<Badge
+										variant={medicine.stock > 10 ? 'default' : 'destructive'}
+									>
+										{medicine.stock} units
+									</Badge>
+								</TableCell>
+								<TableCell className='text-right'>
+									<div className='flex justify-end gap-2'>
+										<Button asChild variant='ghost' size='icon'>
+											<Link href={`/dashboard/medicines/${medicine.id}/edit`}>
+												<Pencil className='h-4 w-4' />
+											</Link>
+										</Button>
+										<Button
+											variant='destructive'
+											size='icon'
+											onClick={() =>
+												setDeleteDialog({
+													open: true,
+													id: medicine.id,
+													name: medicine.name,
+												})
+											}
+											disabled={isDeleting === medicine.id}
+										>
+											<Trash2 className='h-4 w-4' />
+										</Button>
+									</div>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</div>
+			<DeleteConfirmDialog
+				open={deleteDialog.open}
+				onOpenChange={(open) => setDeleteDialog({ open, id: '', name: '' })}
+				onConfirm={handleDelete}
+				itemName={deleteDialog.name}
+				description='This will permanently delete this category. This action cannot be undone.'
+			/>
+		</>
 	);
 }
