@@ -8,22 +8,24 @@ export interface CartItem extends IMedicine {
 
 class CartStore {
 	private items: CartItem[] = [];
-	private listeners: (() => void)[] = [];
+	private listeners: Set<() => void> = new Set();
 
 	constructor() {
 		if (typeof window !== 'undefined') {
 			const stored = localStorage.getItem('cart');
 			if (stored) {
-				this.items = JSON.parse(stored);
+				try {
+					this.items = JSON.parse(stored);
+				} catch {
+					this.items = [];
+				}
 			}
 		}
 	}
 
 	subscribe(listener: () => void) {
-		this.listeners.push(listener);
-		return () => {
-			this.listeners = this.listeners.filter((l) => l !== listener);
-		};
+		this.listeners.add(listener);
+		return () => this.listeners.delete(listener);
 	}
 
 	private notify() {
@@ -38,32 +40,36 @@ class CartStore {
 	}
 
 	addItem(medicine: IMedicine, quantity: number = 1) {
-		const existingIndex = this.items.findIndex(
-			(item) => item.id === medicine.id,
-		);
+		const existingItem = this.items.find((item) => item.id === medicine.id);
 
-		if (existingIndex > -1) {
-			this.items[existingIndex].quantity += quantity;
+		if (existingItem) {
+			this.items = this.items.map((item) =>
+				item.id === medicine.id
+					? { ...item, quantity: item.quantity + quantity }
+					: item,
+			);
 		} else {
-			this.items.push({ ...medicine, quantity });
+			this.items = [...this.items, { ...medicine, quantity }];
 		}
 
 		this.notify();
 	}
 
 	updateQuantity(id: string, quantity: number) {
-		const index = this.items.findIndex((item) => item.id === id);
-		if (index > -1) {
-			if (quantity <= 0) {
-				this.items.splice(index, 1);
-			} else {
-				this.items[index].quantity = quantity;
-			}
-			this.notify();
+		if (quantity <= 0) {
+			this.removeItem(id);
+			return;
 		}
+
+		this.items = this.items.map((item) =>
+			item.id === id ? { ...item, quantity } : item,
+		);
+
+		this.notify();
 	}
 
 	removeItem(id: string) {
+		// filter already returns a NEW array reference
 		this.items = this.items.filter((item) => item.id !== id);
 		this.notify();
 	}
@@ -71,17 +77,6 @@ class CartStore {
 	clear() {
 		this.items = [];
 		this.notify();
-	}
-
-	getTotalItems(): number {
-		return this.items.reduce((sum, item) => sum + item.quantity, 0);
-	}
-
-	getTotalPrice(): number {
-		return this.items.reduce(
-			(sum, item) => sum + item.price * item.quantity,
-			0,
-		);
 	}
 }
 
