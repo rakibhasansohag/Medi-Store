@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Stat {
 	title: string;
-	value: number;
+	value: number | string;
 	description: string;
 }
 
