@@ -5,6 +5,9 @@ import {
 	ShoppingBag,
 	BarChart,
 	FolderTree,
+	UserCog,
+	Star,
+	User,
 } from 'lucide-react';
 
 export const adminRoutes: IRoute[] = [
@@ -22,6 +25,11 @@ export const adminRoutes: IRoute[] = [
 				icon: Users,
 			},
 			{
+				title: 'Seller Requests',
+				url: '/admin-dashboard/seller-requests',
+				icon: UserCog,
+			},
+			{
 				title: 'Categories',
 				url: '/admin-dashboard/categories',
 				icon: FolderTree,
@@ -36,6 +44,11 @@ export const adminRoutes: IRoute[] = [
 				url: '/admin-dashboard/orders',
 				icon: ShoppingBag,
 			},
+			{
+				title: 'Reviews',
+				url: '/admin-dashboard/reviews',
+				icon: Star,
+			},
 		],
 	},
 
@@ -45,7 +58,7 @@ export const adminRoutes: IRoute[] = [
 			{
 				title: 'Profile',
 				url: '/admin-dashboard/profile',
-				icon: Users,
+				icon: User,
 			},
 		],
 	},
