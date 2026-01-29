@@ -35,7 +35,7 @@ app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/medicines', medicineRouter);
 app.use('/api/v1/orders', orderRouter);
-app.use('api/v1/reviews', reviewRouter);
+app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/users/', userRouter);
 
 // Check Health

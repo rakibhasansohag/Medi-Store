@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { IMedicine } from '@/types';
+import { IMedicine, IReview } from '@/types';
 import {
 	ShoppingCart,
 	Minus,
@@ -17,12 +17,20 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useCart } from '@/hooks/useCart';
+import { ReviewForm } from '../reviews/ReviewForm';
+import { ReviewList } from '../reviews/ReviewList';
 
 interface MedicineDetailProps {
 	medicine: IMedicine;
+	reviews?: IReview[];
+	canReview?: boolean;
 }
 
-export function MedicineDetail({ medicine }: MedicineDetailProps) {
+export function MedicineDetail({
+	medicine,
+	reviews = [],
+	canReview = false,
+}: MedicineDetailProps) {
 	const [quantity, setQuantity] = useState(1);
 	const { addItem } = useCart();
 
@@ -177,6 +185,25 @@ export function MedicineDetail({ medicine }: MedicineDetailProps) {
 							</div>
 						</CardContent>
 					</Card>
+				</div>
+			</div>
+			{/* Review List */}
+			<div className='mt-16 space-y-8'>
+				<div>
+					<h2 className='text-2xl font-bold mb-2'>Customer Reviews</h2>
+					<p className='text-muted-foreground'>
+						See what others are saying about this medicine
+					</p>
+				</div>
+
+				<div className='grid lg:grid-cols-2 gap-8'>
+					{canReview && (
+						<ReviewForm medicineId={medicine.id} medicineName={medicine.name} />
+					)}
+					<div>
+						<h3 className='font-semibold mb-4'>All Reviews</h3>
+						<ReviewList reviews={reviews} />
+					</div>
 				</div>
 			</div>
 		</div>
