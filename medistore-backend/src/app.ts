@@ -11,6 +11,7 @@ import { auth } from './lib/auth';
 import { categoryRouter } from './modules/category/category.route';
 import { medicineRouter } from './modules/medicine/medicine.route';
 import { orderRouter } from './modules/order/order.route';
+import { reviewRouter } from './modules/review/review.route';
 
 const app: Application = express();
 
@@ -33,6 +34,7 @@ app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/medicines', medicineRouter);
 app.use('/api/v1/orders', orderRouter);
+app.use('api/v1/reviews', reviewRouter);
 
 // Check Health
 app.get('/', (req, res) => {

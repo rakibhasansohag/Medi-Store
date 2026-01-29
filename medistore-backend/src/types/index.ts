@@ -167,4 +167,26 @@ export interface ICreateOrderInput {
 	}[];
 }
 
+// =============== REVIEW TYPES =============
+export interface IReview {
+	id: string;
+	rating: number;
+	comment?: string | null;
+	customerId: string;
+	medicineId: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface ICreateReviewInput {
+	rating: number;
+	comment?: string | null;
+	medicineId: string;
+}
+
+export interface IUpdateReviewInput {
+	rating?: number;
+	comment?: string | null;
+}
+
 export { ORDERSTATUS };
