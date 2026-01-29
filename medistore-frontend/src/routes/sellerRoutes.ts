@@ -27,4 +27,14 @@ export const sellerRoutes: IRoute[] = [
 			},
 		],
 	},
+	{
+		title: 'Settings',
+		items: [
+			{
+				title: 'Profile',
+				url: '/dashboard/profile',
+				icon: Package,
+			},
+		],
+	},
 ];

@@ -38,4 +38,15 @@ export const adminRoutes: IRoute[] = [
 			},
 		],
 	},
+
+	{
+		title: 'Settings',
+		items: [
+			{
+				title: 'Profile',
+				url: '/admin-dashboard/profile',
+				icon: Users,
+			},
+		],
+	},
 ];
