@@ -139,3 +139,26 @@ export enum SellerRequestStatus {
 	REJECTED = 'REJECTED',
 }
 
+// ============= USER SERVICE =============
+export interface IUserProfile {
+	id: string;
+	name: string;
+	email: string;
+	phone?: string;
+	image?: string;
+	role: string;
+	status: string;
+	bio?: string;
+	businessName?: string;
+	businessAddress?: string;
+	sellerRequestStatus?: SellerRequestStatus;
+	emailVerified: boolean;
+	createdAt: string;
+}
+
+export interface ISellerRequest {
+	businessName: string;
+	businessAddress: string;
+	phone: string;
+	bio?: string;
+}
