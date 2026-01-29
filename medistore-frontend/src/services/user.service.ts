@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { IApiResponse, IUserProfile, ISellerRequest } from '@/types';
+import { IApiResponse, IUserProfile } from '@/types';
 import { cookies } from 'next/headers';
 
 const AUTH_URL = env.AUTH_URL;
