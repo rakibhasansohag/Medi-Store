@@ -189,4 +189,26 @@ export interface IUpdateReviewInput {
 	comment?: string | null;
 }
 
+// ============== SELLER REQUEST TYPES =============
+export enum SellerRequestStatus {
+	NONE = 'NONE',
+	PENDING = 'PENDING',
+	APPROVED = 'APPROVED',
+	REJECTED = 'REJECTED',
+}
+
+export interface ISellerRequest {
+	businessName: string;
+	businessAddress: string;
+	phone: string;
+	bio?: string;
+}
+
+export interface IUpdateProfileInput {
+	name?: string;
+	phone?: string;
+	bio?: string;
+	image?: string;
+}
+
 export { ORDERSTATUS };
