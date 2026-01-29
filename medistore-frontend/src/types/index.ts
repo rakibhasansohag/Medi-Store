@@ -109,3 +109,33 @@ export interface ICreateOrderInput {
 		price: number;
 	}[];
 }
+
+// ============= REVIEW =============
+export interface IReview {
+	id: string;
+	rating: number;
+	comment?: string;
+	customerId: string;
+	medicineId: string;
+	medicine?: {
+		id: string;
+		name: string;
+		imageUrl?: string;
+	};
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface ICreateReviewInput {
+	rating: number;
+	comment?: string;
+	medicineId: string;
+}
+
+export enum SellerRequestStatus {
+	NONE = 'NONE',
+	PENDING = 'PENDING',
+	APPROVED = 'APPROVED',
+	REJECTED = 'REJECTED',
+}
+
