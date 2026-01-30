@@ -1,5 +1,10 @@
 import { env } from '@/env';
-import { IApiResponse, IMedicine, IPaginatedResponse } from '@/types';
+import {
+	IApiResponse,
+	IMedicine,
+	IMedicineWithSeller,
+	IPaginatedResponse,
+} from '@/types';
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
@@ -19,7 +24,7 @@ interface IGetMedicinesParams {
 export const medicineService = {
 	getMedicines: async (
 		params?: IGetMedicinesParams,
-	): Promise<IApiResponse<IPaginatedResponse<IMedicine>>> => {
+	): Promise<IApiResponse<IPaginatedResponse<IMedicineWithSeller>>> => {
 		try {
 			const url = new URL(`${API_URL}/medicines`);
 
