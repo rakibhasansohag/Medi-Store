@@ -166,6 +166,12 @@ const cancelOrder = async (
 			id: true,
 			customerId: true,
 			status: true,
+			items: {
+				select: {
+					medicineId: true,
+					quantity: true,
+				},
+			},
 		},
 	});
 
@@ -177,7 +183,33 @@ const cancelOrder = async (
 		throw new Error('Can only cancel orders with PLACED status');
 	}
 
-	return await updateOrderStatus(orderId, ORDERSTATUS.CANCELLED);
+	// Cancel order and restore stock in transaction
+	return await prisma.$transaction(async (tx) => {
+		// Restore stock for each item
+		for (const item of order.items) {
+			await tx.medicine.update({
+				where: { id: item.medicineId },
+				data: {
+					stock: {
+						increment: item.quantity,
+					},
+				},
+			});
+		}
+
+		// Update order status
+		return await tx.order.update({
+			where: { id: orderId },
+			data: { status: ORDERSTATUS.CANCELLED },
+			include: {
+				items: {
+					include: {
+						medicine: true,
+					},
+				},
+			},
+		});
+	});
 };
 
 export const OrderService = {

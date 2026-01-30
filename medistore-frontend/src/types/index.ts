@@ -42,6 +42,10 @@ export interface IMedicine {
 	category?: ICategory;
 }
 
+export interface IMedicineWithSeller extends IMedicine {
+	sellerId: string;
+}
+
 // ============= API RESPONSE =============
 export interface IApiResponse<T = unknown> {
 	success: boolean;
