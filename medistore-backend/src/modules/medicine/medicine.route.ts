@@ -28,6 +28,11 @@ router.patch(
 	MedicineController.updateMedicine,
 );
 
+router.patch(
+	'/:id/stock',
+	CheckRole(UserRole.SELLER, UserRole.ADMIN),
+	MedicineController.updateStock,
+);
 router.delete(
 	'/:id',
 	CheckRole(UserRole.SELLER, UserRole.ADMIN),

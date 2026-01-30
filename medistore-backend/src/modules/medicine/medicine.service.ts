@@ -179,6 +179,36 @@ const deleteMedicine = async (
 	});
 };
 
+
+const updateStock = async (
+	medicineId: string,
+	quantity: number,
+	sellerId: string,
+	isAdmin: boolean,
+): Promise<IMedicine> => {
+	const medicine = await prisma.medicine.findUniqueOrThrow({
+		where: { id: medicineId },
+		select: { id: true, sellerId: true, stock: true },
+	});
+
+	// Only seller who owns it can update stock
+	if (!isAdmin && medicine.sellerId !== sellerId) {
+		throw new Error(
+			'Unauthorized: You can only update your own medicine stock',
+		);
+	}
+
+	return await prisma.medicine.update({
+		where: { id: medicineId },
+		data: {
+			stock: {
+				// no negetive stock eg: -1, -2, -5 but can have 0
+				increment: quantity, // Can be positive (add) or negative (reduce)
+			},
+		},
+	});
+};
+
 export const MedicineService = {
 	createMedicine,
 	getAllMedicines,
@@ -186,4 +216,5 @@ export const MedicineService = {
 	getMedicinesBySeller,
 	updateMedicine,
 	deleteMedicine,
+	updateStock,
 };

@@ -132,3 +132,44 @@ export async function deleteMedicine(id: string): Promise<IApiResponse<void>> {
 		};
 	}
 }
+
+export async function updateMedicineStock(
+	medicineId: string,
+	quantity: number,
+): Promise<IApiResponse<IMedicine>> {
+	try {
+		const cookieStore = await cookies();
+
+		const res = await fetch(`${API_URL}/medicines/${medicineId}/stock`, {
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				Cookie: cookieStore.toString(),
+			},
+			body: JSON.stringify({ quantity }),
+		});
+
+		const data = await res.json();
+
+		if (!data.success) {
+			return {
+				success: false,
+				message: data.message || 'Failed to update stock',
+			};
+		}
+
+		revalidateTag('medicines', 'max');
+
+		return {
+			success: true,
+			message: 'Stock updated successfully',
+			data: data.data,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			message: 'Something went wrong',
+			details: error,
+		};
+	}
+}

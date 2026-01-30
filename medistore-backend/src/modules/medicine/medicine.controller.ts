@@ -4,6 +4,7 @@ import {
 	ICreateMedicineInput,
 	IUpdateMedicineInput,
 	IGetMedicinesQuery,
+	UserRole,
 } from '../../types';
 
 const createMedicine = async (
@@ -177,6 +178,37 @@ const deleteMedicine = async (
 	}
 };
 
+const updateStock = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		if (!req.user) {
+			return res.status(401).json({
+				success: false,
+				message: 'Unauthorized access',
+			});
+		}
+
+		const { id } = req.params;
+		const { quantity } = req.body as { quantity: number };
+
+		const isAdmin = req.user.role === UserRole.ADMIN;
+
+		const result = await MedicineService.updateStock(
+			id as string,
+			quantity,
+			req.user.id,
+			isAdmin,
+		);
+
+		res.status(200).json({
+			success: true,
+			message: 'Stock updated successfully',
+			data: result,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
 export const MedicineController = {
 	createMedicine,
 	getAllMedicines,
@@ -184,4 +216,5 @@ export const MedicineController = {
 	getMyMedicines,
 	updateMedicine,
 	deleteMedicine,
+	updateStock,
 };
