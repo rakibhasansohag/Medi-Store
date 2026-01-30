@@ -4,9 +4,12 @@ import CheckRole, { UserRole } from '../../middleware/auth';
 
 const router = express.Router();
 
+
+router.get('/:id', OrderController.getOrderById);
+
 // Customer routes
 router.get(
-	'/my-orders',
+	'/customer/my-orders',
 	CheckRole(UserRole.CUSTOMER),
 	OrderController.getMyOrders,
 );
@@ -21,12 +24,10 @@ router.patch(
 
 // Admin/Seller routes
 router.get(
-	'/',
+	'/all',
 	CheckRole(UserRole.ADMIN, UserRole.SELLER),
 	OrderController.getAllOrders,
 );
-
-router.get('/:id', OrderController.getOrderById);
 
 router.patch(
 	'/:id/status',

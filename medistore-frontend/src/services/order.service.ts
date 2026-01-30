@@ -9,7 +9,7 @@ export const orderService = {
 		try {
 			const cookieStore = await cookies();
 
-			const res = await fetch(`${API_URL}/orders/my-orders`, {
+			const res = await fetch(`${API_URL}/orders/customer/my-orders`, {
 				headers: {
 					Cookie: cookieStore.toString(),
 				},
@@ -77,7 +77,7 @@ export const orderService = {
 		try {
 			const cookieStore = await cookies();
 
-			const res = await fetch(`${API_URL}/orders`, {
+			const res = await fetch(`${API_URL}/orders/all`, {
 				headers: {
 					Cookie: cookieStore.toString(),
 				},

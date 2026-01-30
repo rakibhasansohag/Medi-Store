@@ -91,5 +91,37 @@ export async function updateOrderStatus(
 export async function cancelOrder(
 	orderId: string,
 ): Promise<IApiResponse<IOrder>> {
-	return updateOrderStatus(orderId, 'CANCELLED');
+	try {
+		const cookieStore = await cookies();
+
+		const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
+			method: 'PATCH',
+			headers: {
+				Cookie: cookieStore.toString(),
+			},
+		});
+
+		const data = await res.json();
+
+		if (!data.success) {
+			return {
+				success: false,
+				message: data.message || 'Failed to cancel order',
+			};
+		}
+
+		revalidateTag('orders', 'max');
+
+		return {
+			success: true,
+			message: 'Order cancelled successfully',
+			data: data.data,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			message: 'Something went wrong',
+			details: error,
+		};
+	}
 }
