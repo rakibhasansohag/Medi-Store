@@ -18,6 +18,7 @@ import { useForm } from '@tanstack/react-form';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
 import * as z from 'zod';
+import Link from 'next/link';
 
 const formSchema = z.object({
 	name: z.string().min(1, 'This field is required'),
@@ -180,8 +181,9 @@ export function RegisterForm({
 				</CardContent>
 			</Card>
 			<FieldDescription className='px-6 text-center'>
-				By clicking continue, you agree to our <a href='#'>Terms of Service</a>{' '}
-				and <a href='#'>Privacy Policy</a>.
+				By clicking continue, you agree to our{' '}
+				<Link href='#'>Terms of Service</Link> and{' '}
+				<Link href='#'>Privacy Policy</Link>.
 			</FieldDescription>
 		</div>
 	);
