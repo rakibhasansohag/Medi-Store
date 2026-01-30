@@ -187,7 +187,7 @@ export const medicineService = {
 		try {
 			const cookieStore = await cookies();
 
-			const res = await fetch(`${API_URL}/medicines/my/medicines`, {
+			const res = await fetch(`${API_URL}/medicines/seller/my-medicines`, {
 				headers: {
 					Cookie: cookieStore.toString(),
 				},
@@ -202,8 +202,6 @@ export const medicineService = {
 					message: data.message || 'Failed to fetch medicines',
 				};
 			}
-
-			// return data;
 
 			return {
 				success: true,

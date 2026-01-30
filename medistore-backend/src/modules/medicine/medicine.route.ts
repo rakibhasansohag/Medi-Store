@@ -6,14 +6,15 @@ const router = express.Router();
 
 // Public routes
 router.get('/', MedicineController.getAllMedicines);
-router.get('/:id', MedicineController.getMedicineById);
 
 // Seller routes
 router.get(
-	'/my/medicines',
+	'/seller/my-medicines',
 	CheckRole(UserRole.SELLER),
 	MedicineController.getMyMedicines,
 );
+
+router.get('/:id', MedicineController.getMedicineById);
 
 router.post(
 	'/',

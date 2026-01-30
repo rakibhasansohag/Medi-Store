@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { IOrder, OrderStatus } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,28 +17,29 @@ import {
 import Image from 'next/image';
 import { updateOrderStatus } from '@/actions/order.action';
 import { toast } from 'sonner';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Package, Clock, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { cn } from '../../../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface AdminOrderDetailProps {
 	order: IOrder;
+	children: ReactNode; 
 }
 
 const statusColors: Record<OrderStatus, string> = {
-	[OrderStatus.PLACED]: 'bg-blue-500',
-	[OrderStatus.PROCESSING]: 'bg-yellow-500',
-	[OrderStatus.SHIPPED]: 'bg-purple-500',
-	[OrderStatus.DELIVERED]: 'bg-green-500',
-	[OrderStatus.CANCELLED]: 'bg-red-500',
+	[OrderStatus.PLACED]: 'bg-blue-500 hover:bg-blue-600',
+	[OrderStatus.PROCESSING]: 'bg-yellow-500 hover:bg-yellow-600',
+	[OrderStatus.SHIPPED]: 'bg-purple-500 hover:bg-purple-600',
+	[OrderStatus.DELIVERED]: 'bg-green-500 hover:bg-green-600',
+	[OrderStatus.CANCELLED]: 'bg-red-500 hover:bg-red-600',
 };
 
-export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
+export function AdminOrderDetail({ order, children }: AdminOrderDetailProps) {
 	const router = useRouter();
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [currentStatus, setCurrentStatus] = useState(order.status);
+	const [isUpdating, setIsUpdating] = useState<boolean>(false);
+	const [currentStatus, setCurrentStatus] = useState<OrderStatus>(order.status);
 
-	const handleStatusChange = async (newStatus: string) => {
+	const handleStatusChange = async (newStatus: string): Promise<void> => {
 		setIsUpdating(true);
 		const loadingToast = toast.loading('Updating order status...');
 
@@ -51,7 +52,6 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
 		} else {
 			toast.error(result.message, { id: loadingToast });
 		}
-
 		setIsUpdating(false);
 	};
 
@@ -62,118 +62,133 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
 	return (
 		<div className='space-y-6'>
 			{/* Header */}
-			<div className='flex items-center gap-4'>
-				<Button variant='ghost' size='icon' asChild>
-					<Link href='/admin-dashboard/orders'>
-						<ArrowLeft className='h-5 w-5' />
-					</Link>
-				</Button>
-				<div className='flex-1'>
-					<h1 className='text-3xl font-bold'>Order Details</h1>
-					<p className='text-muted-foreground'>Order #{order.orderNumber}</p>
+			<div className='flex flex-col sm:flex-row sm:items-center gap-4'>
+				<div className='flex items-center gap-3'>
+					<Button
+						variant='outline'
+						size='icon'
+						asChild
+						className='rounded-full'
+					>
+						<Link href='/admin-dashboard/orders'>
+							<ArrowLeft className='h-5 w-5' />
+						</Link>
+					</Button>
+					<div>
+						<h1 className='text-2xl md:text-3xl font-bold tracking-tight'>
+							Order Details
+						</h1>
+						<p className='text-sm text-muted-foreground font-mono'>
+							#{order.orderNumber}
+						</p>
+					</div>
 				</div>
-				<Badge
-					className={cn(
-						statusColors[currentStatus as OrderStatus],
-						'text-base px-4 py-1',
-					)}
-				>
-					{currentStatus}
-				</Badge>
+				<div className='sm:ml-auto'>
+					<Badge
+						className={cn(
+							statusColors[currentStatus],
+							'text-white px-4 py-1.5 text-sm capitalize',
+						)}
+					>
+						{currentStatus.toLowerCase()}
+					</Badge>
+				</div>
 			</div>
 
-			<div className='grid lg:grid-cols-3 gap-6'>
-				{/* Order Items */}
-				<div className='lg:col-span-2 space-y-4'>
-					<Card>
-						<CardHeader>
-							<CardTitle>Order Items</CardTitle>
+			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+				{/* Left Column: Items & Customer (Children) */}
+				<div className='lg:col-span-2 space-y-6'>
+					<Card className='overflow-hidden border-none shadow-sm bg-muted/30'>
+						<CardHeader className='bg-background/50'>
+							<CardTitle className='flex items-center gap-2'>
+								<Package className='h-5 w-5 text-primary' />
+								Order Items ({order.items.length})
+							</CardTitle>
 						</CardHeader>
-						<CardContent className='space-y-4'>
+						<CardContent className='divide-y divide-border p-0'>
 							{order.items.map((item) => (
-								<div key={item.id} className='flex gap-4'>
-									<div className='relative w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0'>
+								<div
+									key={item.id}
+									className='flex gap-4 p-4 hover:bg-muted/50 transition-colors'
+								>
+									<div className='relative w-20 h-20 rounded-lg overflow-hidden bg-white shrink-0 border'>
 										{item.medicine?.imageUrl ? (
 											<Image
 												src={item.medicine.imageUrl}
 												alt={item.medicine.name}
 												fill
-												className='object-cover'
+												className='object-contain p-1'
 											/>
 										) : (
-											<div className='w-full h-full flex items-center justify-center text-3xl'>
+											<div className='w-full h-full flex items-center justify-center text-2xl'>
 												💊
 											</div>
 										)}
 									</div>
-									<div className='flex-1'>
-										<p className='font-semibold'>{item.medicine?.name}</p>
-										<p className='text-sm text-muted-foreground'>
-											Medicine ID: {item.medicineId.slice(0, 8)}...
-										</p>
-										<p className='text-sm text-muted-foreground'>
-											Quantity: {item.quantity}
-										</p>
-										<p className='text-sm font-semibold mt-1'>
-											${item.price.toFixed(2)} × {item.quantity} = $
-											{(item.price * item.quantity).toFixed(2)}
-										</p>
+									<div className='flex-1 flex flex-col justify-center'>
+										<div className='flex justify-between items-start'>
+											<div>
+												<p className='font-bold text-base'>
+													{item.medicine?.name}
+												</p>
+												<p className='text-xs text-muted-foreground'>
+													ID: {item.medicineId.slice(-8)}
+												</p>
+											</div>
+											<p className='font-bold'>
+												${(item.price * item.quantity).toFixed(2)}
+											</p>
+										</div>
+										<div className='flex justify-between items-center mt-2'>
+											<p className='text-sm text-muted-foreground'>
+												${item.price.toFixed(2)} × {item.quantity}
+											</p>
+										</div>
 									</div>
 								</div>
 							))}
 						</CardContent>
 					</Card>
 
-					{/* Customer & Shipping Info */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Customer & Shipping</CardTitle>
-						</CardHeader>
-						<CardContent className='space-y-4'>
-							<div>
-								<p className='text-sm text-muted-foreground mb-1'>
-									Customer ID
-								</p>
-								<p className='font-medium'>{order.customerId}</p>
-							</div>
-							<Separator />
-							<div>
-								<p className='text-sm text-muted-foreground mb-1'>
-									Shipping Address
-								</p>
-								<p className='font-medium'>{order.shippingAddress}</p>
-							</div>
-						</CardContent>
-					</Card>
+					{/* The Streamed Customer Card renders here */}
+					{children}
 				</div>
 
-				{/* Order Summary & Actions */}
-				<div className='space-y-4'>
-					<Card>
+				{/* Right Column: Summary & Actions */}
+				<div className='space-y-6'>
+					<Card className='shadow-sm border-primary/10'>
 						<CardHeader>
 							<CardTitle>Order Summary</CardTitle>
 						</CardHeader>
 						<CardContent className='space-y-4'>
-							<div className='space-y-2'>
+							<div className='space-y-3'>
 								<div className='flex justify-between text-sm'>
-									<span className='text-muted-foreground'>Order Date</span>
-									<span>{new Date(order.createdAt).toLocaleDateString()}</span>
+									<span className='text-muted-foreground flex items-center gap-2'>
+										<Calendar className='h-4 w-4' /> Date
+									</span>
+									<span className='font-medium'>
+										{new Date(order.createdAt).toLocaleDateString()}
+									</span>
 								</div>
 								<div className='flex justify-between text-sm'>
-									<span className='text-muted-foreground'>Last Updated</span>
-									<span>{new Date(order.updatedAt).toLocaleDateString()}</span>
+									<span className='text-muted-foreground flex items-center gap-2'>
+										<Clock className='h-4 w-4' /> Updated
+									</span>
+									<span className='font-medium'>
+										{new Date(order.updatedAt).toLocaleDateString()}
+									</span>
 								</div>
 								<Separator />
 								<div className='flex justify-between text-sm'>
 									<span className='text-muted-foreground'>Subtotal</span>
 									<span>${order.totalAmount.toFixed(2)}</span>
 								</div>
-								<div className='flex justify-between text-sm'>
-									<span className='text-muted-foreground'>Shipping</span>
+								<div className='flex justify-between text-sm font-medium text-green-600'>
+									<span>Shipping</span>
 									<span>FREE</span>
 								</div>
-								<Separator />
-								<div className='flex justify-between text-lg font-bold'>
+								<Separator className='h-0.5' />
+								<div className='flex justify-between text-xl font-black pt-2'>
 									<span>Total</span>
 									<span className='text-primary'>
 										${order.totalAmount.toFixed(2)}
@@ -183,11 +198,10 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
 						</CardContent>
 					</Card>
 
-					{/* Status Management */}
 					{canUpdateStatus && (
-						<Card>
+						<Card className='border-2 border-primary/5 shadow-md'>
 							<CardHeader>
-								<CardTitle>Update Status</CardTitle>
+								<CardTitle className='text-lg'>Status Management</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
 								<Select
@@ -195,39 +209,27 @@ export function AdminOrderDetail({ order }: AdminOrderDetailProps) {
 									onValueChange={handleStatusChange}
 									disabled={isUpdating}
 								>
-									<SelectTrigger>
-										<SelectValue />
+									<SelectTrigger className='w-full h-12'>
+										<SelectValue placeholder='Select status' />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value={OrderStatus.PLACED}>
-											<Badge className={statusColors[OrderStatus.PLACED]}>
-												PLACED
-											</Badge>
-										</SelectItem>
-										<SelectItem value={OrderStatus.PROCESSING}>
-											<Badge className={statusColors[OrderStatus.PROCESSING]}>
-												PROCESSING
-											</Badge>
-										</SelectItem>
-										<SelectItem value={OrderStatus.SHIPPED}>
-											<Badge className={statusColors[OrderStatus.SHIPPED]}>
-												SHIPPED
-											</Badge>
-										</SelectItem>
-										<SelectItem value={OrderStatus.DELIVERED}>
-											<Badge className={statusColors[OrderStatus.DELIVERED]}>
-												DELIVERED
-											</Badge>
-										</SelectItem>
-										<SelectItem value={OrderStatus.CANCELLED}>
-											<Badge className={statusColors[OrderStatus.CANCELLED]}>
-												CANCELLED
-											</Badge>
-										</SelectItem>
+										{Object.values(OrderStatus).map((status) => (
+											<SelectItem key={status} value={status}>
+												<div className='flex items-center gap-2'>
+													<div
+														className={cn(
+															'h-2 w-2 rounded-full',
+															statusColors[status],
+														)}
+													/>
+													{status}
+												</div>
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
-								<p className='text-xs text-muted-foreground'>
-									Update the order status to keep customer informed
+								<p className='text-xs text-center text-muted-foreground italic'>
+									Changing status triggers a customer notification.
 								</p>
 							</CardContent>
 						</Card>

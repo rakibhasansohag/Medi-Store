@@ -7,7 +7,7 @@ export const customerRoutes: IRoute[] = [
 		items: [
 			{
 				title: 'My Cart',
-				url: '/dashboard/cart',
+				url: '/cart',
 				icon: ShoppingCart,
 			},
 			{
