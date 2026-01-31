@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
 	email: z.string().email('Invalid email'),
@@ -31,6 +31,7 @@ export function LoginForm({
 	...props
 }: React.ComponentProps<'div'>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const router = useRouter();
 
 	const form = useForm({
 		defaultValues: { email: '', password: '' },
@@ -54,7 +55,8 @@ export function LoginForm({
 				console.log(data);
 
 				toast.success('Logged in successfully', { id: loadingToast });
-				window.location.href = '/dashboard';
+				// window.location.href = '/dashboard';
+				router.push('/dashboard');
 			} catch (err) {
 				console.error(err);
 				toast.error('Something went wrong', { id: loadingToast });
