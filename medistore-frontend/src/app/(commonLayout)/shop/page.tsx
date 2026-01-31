@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ShopFilters } from '@/components/modules/shop/ShopFilters';
 import { ShopContent } from '@/components/modules/shop/ShopContent';
 import { medicineService } from '@/services/medicine.service';

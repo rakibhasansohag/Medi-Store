@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { CheckoutForm } from '@/components/modules/checkout/CheckoutForm';
 import { redirect } from 'next/navigation';
 import { userService } from '@/services/user.service';

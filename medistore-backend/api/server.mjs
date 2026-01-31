@@ -369,6 +369,10 @@ var auth = betterAuth({
     provider: "postgresql"
     // or "mysql", "postgresql",
   }),
+  cookies: {
+    secure: true,
+    sameSite: "none"
+  },
   baseURL: `${process.env.BETTER_AUTH_URL}/api/v1/auth`,
   trustedOrigins: [process.env.APP_URL],
   user: {
@@ -2099,8 +2103,19 @@ app.use(globalErrorHandler_default);
 app.use(notFound);
 var app_default = app;
 
-// src/index.ts
-var index_default = app_default;
-export {
-  index_default as default
-};
+// src/server.ts
+var PORT = process.env.PORT || 4e3;
+async function main() {
+  try {
+    await prisma.$connect();
+    console.log("Connected to the database Successfully");
+    app_default.listen(PORT, () => {
+      console.log(
+        `Server is listening on port ${PORT} \u2705 Live on http://localhost:${PORT}`
+      );
+    });
+  } catch (error) {
+    console.error("An Error happened : ", error);
+  }
+}
+main();

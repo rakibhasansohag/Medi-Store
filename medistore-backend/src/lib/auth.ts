@@ -21,6 +21,7 @@ export const auth = betterAuth({
 		secure: true,
 		sameSite: 'none',
 	},
+	advanced: {},
 	baseURL: `${process.env.BETTER_AUTH_URL}/api/v1/auth`,
 	trustedOrigins: [process.env.APP_URL!],
 	user: {

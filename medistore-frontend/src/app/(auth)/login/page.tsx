@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { LoginForm } from '@/components/modules/authentication/login-form';
 
 export default function LoginPage() {

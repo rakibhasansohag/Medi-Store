@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { CartContent } from '@/components/modules/cart/CartContent';
 
 export default function CartPage() {
