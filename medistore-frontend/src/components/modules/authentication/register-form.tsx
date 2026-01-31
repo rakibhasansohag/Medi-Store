@@ -1,4 +1,3 @@
-// src/components/modules/authentication/register-form.tsx
 'use client';
 
 import { useState } from 'react';
@@ -12,9 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-	Field,
 	FieldError,
-	FieldGroup,
 	FieldLabel,
 	FieldDescription,
 } from '@/components/ui/field';
