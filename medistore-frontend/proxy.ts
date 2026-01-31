@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService } from './services/user.service';
-import { Roles } from './constants/roles';
+import { userService } from './src/services/user.service';
+import { Roles } from './src/constants/roles';
+
+
 
 export async function proxy(request: NextRequest) {
 	const pathname = request.nextUrl.pathname;

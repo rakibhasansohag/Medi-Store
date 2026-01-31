@@ -1,4 +1,3 @@
-// src/components/modules/authentication/login-form.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-	Field,
 	FieldDescription,
 	FieldError,
 	FieldGroup,
@@ -21,7 +19,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { env } from '../../../env';
+import { env } from '@/env';
 
 const loginSchema = z.object({
 	email: z.string().email('Invalid email'),
@@ -67,7 +65,7 @@ export function LoginForm({
 	const handleGoogleLogin = async () => {
 		await authClient.signIn.social({
 			provider: 'google',
-			callbackURL: env.FRONTEND_URL,
+			callbackURL: '',
 		});
 	};
 

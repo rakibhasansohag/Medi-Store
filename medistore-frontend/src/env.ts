@@ -15,6 +15,7 @@ export const env = createEnv({
 		NEXT_PUBLIC_AUTH_URL: z.string(),
 		NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string(),
 		NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z.string(),
+		NEXT_PUBLIC_BACKEND_URL: z.url(),
 	},
 
 	runtimeEnv: {
@@ -28,5 +29,6 @@ export const env = createEnv({
 			process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
 		NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET:
 			process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+		NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
 	},
 });
