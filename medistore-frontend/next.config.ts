@@ -24,14 +24,14 @@ const nextConfig: NextConfig = {
 			{ protocol: 'https', hostname: 'picsum.photos' },
 		],
 	},
-	async rewrites() {
-		return [
-			{
-				source: '/api/v1/auth/:path*',
-				destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/:path*`,
-			},
-		];
-	},
+	// async rewrites() {
+	// 	return [
+	// 		{
+	// 			source: '/api/v1/auth/:path*',
+	// 			destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/:path*`,
+	// 		},
+	// 	];
+	// },
 };
 
 export default nextConfig;
