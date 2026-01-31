@@ -51,6 +51,8 @@ export function LoginForm({
 					return;
 				}
 
+				console.log(data);
+
 				toast.success('Logged in successfully', { id: loadingToast });
 				window.location.href = '/dashboard';
 			} catch (err) {
