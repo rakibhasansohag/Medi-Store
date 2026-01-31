@@ -7,14 +7,11 @@ const router = express.Router();
 // Public routes
 router.get('/', MedicineController.getAllMedicines);
 
-// Seller routes
 router.get(
 	'/seller/my-medicines',
 	CheckRole(UserRole.SELLER),
 	MedicineController.getMyMedicines,
 );
-
-router.get('/:id', MedicineController.getMedicineById);
 
 router.post(
 	'/',
@@ -23,20 +20,23 @@ router.post(
 );
 
 router.patch(
+	'/:id/stock',
+	CheckRole(UserRole.SELLER, UserRole.ADMIN),
+	MedicineController.updateStock,
+);
+
+router.patch(
 	'/:id',
 	CheckRole(UserRole.SELLER, UserRole.ADMIN),
 	MedicineController.updateMedicine,
 );
 
-router.patch(
-	'/:id/stock',
-	CheckRole(UserRole.SELLER, UserRole.ADMIN),
-	MedicineController.updateStock,
-);
 router.delete(
 	'/:id',
 	CheckRole(UserRole.SELLER, UserRole.ADMIN),
 	MedicineController.deleteMedicine,
 );
+
+router.get('/:id', MedicineController.getMedicineById);
 
 export const medicineRouter: Router = router;

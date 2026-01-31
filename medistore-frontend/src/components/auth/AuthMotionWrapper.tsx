@@ -8,7 +8,7 @@ type Props = { children: React.ReactNode };
 
 const beamVariants: Variants = {
 	initial: {
-		x: '-310%', // Updated to your preferred 310%
+		x: '-310%',
 		skewX: -45,
 	},
 	hover: {
@@ -29,11 +29,6 @@ const emojiVariants: Variants = {
 	},
 } as const;
 
-/**
- * LightBeam now uses theme-aware colors:
- * - Light Mode: A soft primary blue tint (via-primary/20)
- * - Dark Mode: A crisp white shimmer (dark:via-white/20)
- */
 const LightBeam = (): React.ReactNode => (
 	<div className='pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-2xl'>
 		<motion.div
@@ -60,7 +55,7 @@ export default function AuthMotionWrapper({ children }: Props) {
 
 	return (
 		<div className='min-h-screen w-full flex items-center justify-center bg-muted px-4 md:px-8 transition-colors duration-300'>
-			<div className='w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-0 bg-card text-card-foreground rounded-2xl shadow-2xl overflow-hidden md:h-[750px] items-stretch border border-border'>
+			<div className='w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-0 bg-card text-card-foreground rounded-2xl shadow-2xl overflow-hidden md:h-187.5 items-stretch border border-border'>
 				{/* Left Column: Form */}
 				<motion.div
 					initial='initial'
@@ -77,9 +72,6 @@ export default function AuthMotionWrapper({ children }: Props) {
 					</motion.div>
 				</motion.div>
 
-				{/* Right Column: Promo 
-				    Changed hardcoded slate-950 to be theme-responsive.
-				*/}
 				<motion.div
 					initial='initial'
 					whileHover='hover'

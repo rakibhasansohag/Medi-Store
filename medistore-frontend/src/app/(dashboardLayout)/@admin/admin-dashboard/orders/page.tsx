@@ -6,6 +6,8 @@ export default async function AdminOrdersPage() {
 
 	const orders = data || [];
 
+	console.log(orders);
+
 	return (
 		<div className='space-y-6'>
 			<div>
