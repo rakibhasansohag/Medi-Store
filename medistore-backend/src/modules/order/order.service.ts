@@ -113,7 +113,34 @@ const getMyOrders = async (customerId: string): Promise<IOrder[]> => {
 	});
 };
 
-const getAllOrders = async (): Promise<IOrder[]> => {
+const getAllOrders = async (
+	userId?: string,
+	userRole?: string,
+): Promise<IOrder[]> => {
+	// If user is a SELLER, only return orders containing their medicines
+	if (userRole === 'SELLER' && userId) {
+		return await prisma.order.findMany({
+			where: {
+				items: {
+					some: {
+						medicine: {
+							sellerId: userId,
+						},
+					},
+				},
+			},
+			orderBy: { createdAt: 'desc' },
+			include: {
+				items: {
+					include: {
+						medicine: true,
+					},
+				},
+			},
+		});
+	}
+
+	// For ADMIN, return all orders
 	return await prisma.order.findMany({
 		orderBy: { createdAt: 'desc' },
 		include: {

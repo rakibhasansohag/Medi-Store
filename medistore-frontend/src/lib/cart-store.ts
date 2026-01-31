@@ -9,17 +9,38 @@ export interface CartItem extends IMedicine {
 class CartStore {
 	private items: CartItem[] = [];
 	private listeners: Set<() => void> = new Set();
+	private currentUserId: string | null = null;
 
 	constructor() {
+		// Don't load cart in constructor - wait for user initialization
+	}
+
+	// Initialize cart for specific user
+	initialize(userId: string | null) {
+		// If user changed, clear and reload
+		if (this.currentUserId !== userId) {
+			this.currentUserId = userId;
+			this.loadCart();
+		}
+	}
+
+	private getStorageKey(): string {
+		return this.currentUserId ? `cart_${this.currentUserId}` : 'cart_guest';
+	}
+
+	private loadCart() {
 		if (typeof window !== 'undefined') {
-			const stored = localStorage.getItem('cart');
+			const stored = localStorage.getItem(this.getStorageKey());
 			if (stored) {
 				try {
 					this.items = JSON.parse(stored);
 				} catch {
 					this.items = [];
 				}
+			} else {
+				this.items = [];
 			}
+			this.notify();
 		}
 	}
 
@@ -30,7 +51,7 @@ class CartStore {
 
 	private notify() {
 		if (typeof window !== 'undefined') {
-			localStorage.setItem('cart', JSON.stringify(this.items));
+			localStorage.setItem(this.getStorageKey(), JSON.stringify(this.items));
 		}
 		this.listeners.forEach((listener) => listener());
 	}
@@ -69,13 +90,22 @@ class CartStore {
 	}
 
 	removeItem(id: string) {
-		// filter already returns a NEW array reference
 		this.items = this.items.filter((item) => item.id !== id);
 		this.notify();
 	}
 
 	clear() {
 		this.items = [];
+		this.notify();
+	}
+
+	// Clear cart when user logs out
+	clearUserCart() {
+		if (typeof window !== 'undefined' && this.currentUserId) {
+			localStorage.removeItem(this.getStorageKey());
+		}
+		this.items = [];
+		this.currentUserId = null;
 		this.notify();
 	}
 }

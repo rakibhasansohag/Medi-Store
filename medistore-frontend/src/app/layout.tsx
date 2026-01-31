@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from 'sonner';
 import { ThemeProvider } from 'next-themes';
+import { CartProvider } from '@/components/providers/CartProvider';
+import { userService } from '@/services/user.service';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -22,11 +24,13 @@ export const metadata: Metadata = {
 		'customer management, order management, and a product catalog. ',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const { data: session } = await userService.getSession();
+
 	return (
 		<html lang='en' className='scroll-smooth' suppressHydrationWarning>
 			<body
@@ -38,8 +42,10 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					{children}
-					<Toaster position='top-center' richColors />
+					<CartProvider userId={session?.user?.id || null}>
+						{children}
+						<Toaster position='top-center' richColors />
+					</CartProvider>
 				</ThemeProvider>
 			</body>
 		</html>

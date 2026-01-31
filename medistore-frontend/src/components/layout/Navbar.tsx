@@ -18,6 +18,7 @@ import { useCart } from '@/hooks/useCart';
 import { useState } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
+import { cartStore } from '@/lib/cart-store';
 
 interface NavbarProps {
 	user?: {
@@ -34,7 +35,12 @@ export function Navbar({ user }: NavbarProps) {
 	const router = useRouter();
 
 	const handleLogout = async () => {
+		// Clear user-specific cart
+		cartStore.clearUserCart();
+
+		// Sign out
 		await authClient.signOut();
+
 		router.push('/');
 		router.refresh();
 	};

@@ -14,7 +14,10 @@ export default async function SellerDashboard() {
 	const orders = ordersRes.data || [];
 	const medicines = medicinesRes.data || [];
 
-	// Calculate stats
+	// Get my medicine IDs for revenue calculation
+	const myMedicineIds = new Set(medicines.map((m) => m.id));
+
+	// Calculate stats from seller's orders only
 	const totalProducts = medicines.length;
 	const lowStockProducts = medicines.filter((med) => med.stock < 20);
 	const lowStockCount = lowStockProducts.length;
@@ -30,9 +33,14 @@ export default async function SellerDashboard() {
 		(order) => order.status === 'DELIVERED',
 	).length;
 
+	// Calculate revenue only from seller's medicines in completed orders
 	const totalRevenue = orders.reduce((sum, order) => {
 		if (order.status === 'DELIVERED') {
-			return sum + order.totalAmount;
+			// Calculate revenue only from items that are seller's medicines
+			const sellerItemsRevenue = order.items
+				.filter((item) => myMedicineIds.has(item.medicineId))
+				.reduce((itemSum, item) => itemSum + item.price * item.quantity, 0);
+			return sum + sellerItemsRevenue;
 		}
 		return sum;
 	}, 0);

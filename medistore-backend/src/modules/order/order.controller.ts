@@ -79,7 +79,11 @@ const getAllOrders = async (
 	next: NextFunction,
 ) => {
 	try {
-		const result = await OrderService.getAllOrders();
+		// Pass user info to service so it can filter for sellers
+		const result = await OrderService.getAllOrders(
+			req.user?.id,
+			req.user?.role,
+		);
 
 		res.status(200).json({
 			success: true,
