@@ -14,7 +14,7 @@ export function MedicineCard({ medicine }: MedicineCardProps) {
 	return (
 		<Card className='group h-full flex flex-col transition-all hover:shadow-lg pt-0'>
 			<Link href={`/shop/${medicine.id}`}>
-				<div className='relative w-full aspect-square overflow-hidden rounded-t-lg bg-muted'>
+				<div className='relative w-full aspect-square overflow-hidden rounded-t-lg bg-muted h-56'>
 					{medicine.imageUrl ? (
 						<Image
 							src={medicine.imageUrl}
