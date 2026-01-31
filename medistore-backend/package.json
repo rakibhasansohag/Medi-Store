@@ -10,7 +10,8 @@
 		"seed:admin": "npx tsx src/scripts/seedAdmin.ts",
 		"prisma:studio": "npx prisma studio",
 		"migrate": "npx prisma migrate dev",
-		"prisma:generate": "npx prisma generate"
+		"prisma:generate": "npx prisma generate",
+		"seed": "tsx src/scripts/seed.ts"
 	},
 	"type": "module",
 	"devDependencies": {

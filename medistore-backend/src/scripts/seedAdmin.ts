@@ -1,47 +1,81 @@
 import { auth } from '../lib/auth';
 import { prisma } from '../lib/prisma';
+import { fileURLToPath } from 'url';
 
-async function seedAdmin() {
+interface Logger {
+	info: (message: string) => void;
+	success: (message: string) => void;
+	error: (message: string, error?: any) => void;
+	warning: (message: string) => void;
+}
+
+export async function seedAdmin(logger: Logger) {
 	try {
-		// const adminEmail = 'admin@medistore.com';
 		const adminEmail = 'admin@email.com';
+		const adminPassword = '123456789';
 
-		// 1. Check if the user already exists
+		logger.info(`Creating admin user: ${adminEmail}`);
+
+		// Check if the user already exists
 		const existingUser = await prisma.user.findUnique({
 			where: { email: adminEmail },
 		});
 
 		if (existingUser) {
-			console.log('Admin user already exists.');
-			return;
+			logger.warning('Admin user already exists, skipping creation');
+			return existingUser;
 		}
 
-		// 2. Create the admin user
 		const newAdmin = await auth.api.signUpEmail({
 			body: {
 				email: adminEmail,
-				// password: 'admin123456',
-				password: '123456789',
+				password: adminPassword,
 				name: 'Admin User',
-				// Note: We don't pass 'role' here because Better Auth
-				// usually ignores it in the body for security.
 			},
 		});
 
-		if (newAdmin) {
-			// 3. Manually upgrade the user to ADMIN and verify email
-			await prisma.user.update({
-				where: { email: adminEmail },
-				data: {
-					role: 'ADMIN',
-					emailVerified: true,
-				},
-			});
-			console.log('Admin seeded successfully!');
+		if (!newAdmin) {
+			throw new Error('Failed to create admin user (sign-up returned empty)');
 		}
+
+		// Upgrade to ADMIN and verify email
+		const updatedAdmin = await prisma.user.update({
+			where: { email: adminEmail },
+			data: {
+				role: 'ADMIN',
+				emailVerified: true,
+				phone: '+1234567890',
+				status: 'ACTIVE',
+			},
+		});
+
+		logger.success(`Admin user created successfully: ${updatedAdmin.email}`);
+		return updatedAdmin;
 	} catch (error) {
-		console.error('Seeding error:', error);
+		logger.error('Failed to seed admin', error);
+		throw error;
 	}
 }
 
-seedAdmin();
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
+	const simpleLogger: Logger = {
+		info: (msg) => console.log(`ℹ ${msg}`),
+		success: (msg) => console.log(`✓ ${msg}`),
+		error: (msg, err) => {
+			console.error(`✗ ${msg}`);
+			if (err) console.error(err);
+		},
+		warning: (msg) => console.log(`⚠ ${msg}`),
+	};
+
+	// run and exit
+	seedAdmin(simpleLogger)
+		.then(() => {
+			console.log('seedAdmin finished');
+			process.exit(0);
+		})
+		.catch((err) => {
+			console.error('seedAdmin failed', err);
+			process.exit(1);
+		});
+}
