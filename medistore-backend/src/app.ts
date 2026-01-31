@@ -28,6 +28,11 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Check Health
+app.get('/', (req, res) => {
+	res.send('Hello World');
+});
+
 // routes (Better auth routes)
 app.all('/api/v1/auth/*splat', toNodeHandler(auth));
 
@@ -38,10 +43,7 @@ app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/users', userRouter);
 
-// Check Health
-app.get('/', (req, res) => {
-	res.send('Hello World');
-});
+
 
 app.use(errorHandler);
 app.use(notFound);
