@@ -1,10 +1,15 @@
 import { IRoute } from '@/types';
-import { ShoppingCart, Package, User } from 'lucide-react';
+import { ShoppingCart, Package, User, BarChart } from 'lucide-react';
 
 export const customerRoutes: IRoute[] = [
 	{
 		title: 'Shopping',
 		items: [
+			{
+				title: 'Dashboard',
+				url: '/dashboard',
+				icon: BarChart,
+			},
 			{
 				title: 'My Cart',
 				url: '/cart',
