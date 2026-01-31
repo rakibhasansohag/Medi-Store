@@ -8,12 +8,52 @@ interface Logger {
 	warning: (message: string) => void;
 }
 
-// Unsplash fallback images for medicines
-const getUnsplashImage = (seed: string): string => {
-	return `https://source.unsplash.com/400x400/?medicine,pharmacy,pills&sig=${seed}`;
-};
+const normalizeText = (s: string) =>
+	s
+		.replace(/\s+/g, ' ')
+		.trim()
+		.replace(/[^\w\s-]/g, '')
+		.slice(0, 120);
 
-// Medicine data mapped to categories
+const buildUnsplashQuery = (medicineName: string, categoryName: string) =>
+	`${normalizeText(medicineName)} ${normalizeText(categoryName)} medicine`;
+
+async function fetchUnsplashImageUrl(query: string): Promise<string | null> {
+	try {
+		const key = process.env.UNSPLASH_ACCESS_KEY;
+		if (!key) return null;
+
+		const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+			query,
+		)}&per_page=1&orientation=squarish`;
+		const res = await fetch(url, {
+			headers: {
+				Authorization: `Client-ID ${key}`,
+				'Accept-Version': 'v1',
+			},
+		});
+
+		if (!res.ok) {
+			// could be rate limit or other error
+			return null;
+		}
+
+		const data = await res.json();
+		if (data?.results && data.results.length > 0) {
+			// Prefer urls.regular (good size) or urls.small
+			const photo = data.results[0];
+			if (photo && photo.urls && photo.urls.regular) return photo.urls.regular;
+		}
+
+		return null;
+	} catch (err) {
+		return null;
+	}
+}
+
+const getPicsumFallback = (seed: string) =>
+	`https://picsum.photos/seed/${encodeURIComponent(seed)}/400/400`;
+
 const medicinesDataByCategorySlug: Record<
 	string,
 	Array<{
@@ -76,6 +116,7 @@ const medicinesDataByCategorySlug: Record<
 			stock: 90,
 		},
 	],
+
 	'digestive-health': [
 		{
 			name: 'Probiotic Capsules',
@@ -272,7 +313,6 @@ export async function seedMedicines(
 		if (categories.length === 0) {
 			throw new Error('No categories available for seeding medicines');
 		}
-
 		if (sellers.length === 0) {
 			throw new Error('No sellers available for seeding medicines');
 		}
@@ -296,20 +336,27 @@ export async function seedMedicines(
 
 			for (const medicineData of categoryMedicines) {
 				try {
-					// Rotate through sellers
 					const seller = sellers[medicineCount % sellers.length];
 
-					// Generate unique image for each medicine
-					const imageUrl = getUnsplashImage(
-						`${category.slug}-${medicineData.name}`,
-					);
+					// Build query and try Unsplash first
+					const query = buildUnsplashQuery(medicineData.name, category.name);
+					let finalImageUrl = await fetchUnsplashImageUrl(query);
+
+					// If Unsplash fails, fallback to picsum seeded image
+					if (!finalImageUrl) {
+						const seed = `${category.slug}-${medicineData.name}`;
+						finalImageUrl = getPicsumFallback(seed);
+						logger.info(`    (fallback) using picsum for ${medicineData.name}`);
+					} else {
+						logger.info(`    (unsplash) found image for ${medicineData.name}`);
+					}
 
 					const medicine = await prisma.medicine.create({
 						data: {
 							...medicineData,
 							categoryId: category.id,
 							sellerId: seller.id,
-							imageUrl,
+							imageUrl: finalImageUrl,
 						},
 					});
 
