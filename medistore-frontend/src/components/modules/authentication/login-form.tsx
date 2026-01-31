@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { env } from '../../../env';
 
 const loginSchema = z.object({
 	email: z.string().email('Invalid email'),
@@ -66,7 +67,7 @@ export function LoginForm({
 	const handleGoogleLogin = async () => {
 		await authClient.signIn.social({
 			provider: 'google',
-			callbackURL: 'http://localhost:3000',
+			callbackURL: env.FRONTEND_URL,
 		});
 	};
 
