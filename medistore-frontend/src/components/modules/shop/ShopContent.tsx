@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { IMedicine } from '@/types';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ShopContentProps {
 	medicines: IMedicine[];
@@ -14,13 +15,22 @@ interface ShopContentProps {
 		limit: number;
 		totalPages: number;
 	};
+	onPageChange?: (page: number) => void;
 }
 
-export function ShopContent({ medicines, pagination }: ShopContentProps) {
+export function ShopContent({
+	medicines,
+	pagination,
+	onPageChange,
+}: ShopContentProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
 	const navigateToPage = (page: number) => {
+		if (onPageChange) {
+			onPageChange(page);
+			return;
+		}
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('page', page.toString());
 		router.push(`/shop?${params.toString()}`);
@@ -28,14 +38,18 @@ export function ShopContent({ medicines, pagination }: ShopContentProps) {
 
 	if (medicines.length === 0) {
 		return (
-			<div className='text-center py-16'>
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				className='text-center py-16'
+			>
 				<div className='text-6xl mb-4'>🔍</div>
 				<h3 className='text-2xl font-semibold mb-2'>No medicines found</h3>
 				<p className='text-muted-foreground mb-6'>
 					Try adjusting your filters or search terms
 				</p>
 				<Button onClick={() => router.push('/shop')}>Clear Filters</Button>
-			</div>
+			</motion.div>
 		);
 	}
 
@@ -51,11 +65,25 @@ export function ShopContent({ medicines, pagination }: ShopContentProps) {
 			</div>
 
 			{/* Products Grid */}
-			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-				{medicines.map((medicine) => (
-					<MedicineCard key={medicine.id} medicine={medicine} />
-				))}
-			</div>
+			<motion.div
+				layout
+				className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+			>
+				<AnimatePresence mode='popLayout'>
+					{medicines.map((medicine) => (
+						<motion.div
+							layout
+							key={medicine.id}
+							initial={{ opacity: 0, scale: 0.9 }}
+							animate={{ opacity: 1, scale: 1 }}
+							exit={{ opacity: 0, scale: 0.9 }}
+							transition={{ duration: 0.2 }}
+						>
+							<MedicineCard medicine={medicine} />
+						</motion.div>
+					))}
+				</AnimatePresence>
+			</motion.div>
 
 			{/* Pagination */}
 			{pagination.totalPages > 1 && (

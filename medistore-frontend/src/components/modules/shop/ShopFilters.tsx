@@ -12,16 +12,44 @@ import { useState } from 'react';
 
 interface ShopFiltersProps {
 	categories: ICategory[];
+	onFilterChange?: (key: string, value: string) => void;
+	onPriceChange?: (min: string, max: string) => void;
+	onClearFilters?: () => void;
+	values?: {
+		categoryId?: string;
+		minPrice?: string;
+		maxPrice?: string;
+	};
 }
 
-export function ShopFilters({ categories }: ShopFiltersProps) {
+export function ShopFilters({
+	categories,
+	onFilterChange,
+	onPriceChange,
+	onClearFilters,
+	values,
+}: ShopFiltersProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
-	const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-	const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+	const currentCategoryId =
+		(values?.categoryId !== undefined
+			? values.categoryId
+			: searchParams.get('categoryId')) || 'all';
+	const currentMinPrice =
+		values?.minPrice ?? searchParams.get('minPrice') ?? '';
+	const currentMaxPrice =
+		values?.maxPrice ?? searchParams.get('maxPrice') ?? '';
+
+	const [minPrice, setMinPrice] = useState(currentMinPrice);
+	const [maxPrice, setMaxPrice] = useState(currentMaxPrice);
 
 	const updateFilters = (key: string, value: string) => {
+		if (onFilterChange) {
+			onFilterChange(key, value);
+			return;
+		}
+
 		const params = new URLSearchParams(searchParams.toString());
 
 		if (value) {
@@ -37,12 +65,24 @@ export function ShopFilters({ categories }: ShopFiltersProps) {
 	};
 
 	const clearFilters = () => {
+		if (onClearFilters) {
+			onClearFilters();
+			setMinPrice('');
+			setMaxPrice('');
+			return;
+		}
+
 		router.push('/shop');
 		setMinPrice('');
 		setMaxPrice('');
 	};
 
 	const applyPriceFilter = () => {
+		if (onPriceChange) {
+			onPriceChange(minPrice, maxPrice);
+			return;
+		}
+
 		const params = new URLSearchParams(searchParams.toString());
 
 		if (minPrice) params.set('minPrice', minPrice);
@@ -56,10 +96,13 @@ export function ShopFilters({ categories }: ShopFiltersProps) {
 		router.push(`/shop?${params.toString()}`);
 	};
 
-	const hasFilters =
-		searchParams.get('categoryId') ||
-		searchParams.get('minPrice') ||
-		searchParams.get('maxPrice');
+	const hasFilters = values
+		? !!(values.categoryId || values.minPrice || values.maxPrice)
+		: !!(
+				searchParams.get('categoryId') ||
+				searchParams.get('minPrice') ||
+				searchParams.get('maxPrice')
+			);
 
 	return (
 		<aside className='space-y-6'>
@@ -78,7 +121,7 @@ export function ShopFilters({ categories }: ShopFiltersProps) {
 				</CardHeader>
 				<CardContent>
 					<RadioGroup
-						value={searchParams.get('categoryId') || 'all'}
+						value={currentCategoryId}
 						onValueChange={(value) =>
 							updateFilters('categoryId', value === 'all' ? '' : value)
 						}
@@ -110,59 +153,31 @@ export function ShopFilters({ categories }: ShopFiltersProps) {
 					<CardTitle>Price Range</CardTitle>
 				</CardHeader>
 				<CardContent className='space-y-4'>
-					<div className='space-y-2'>
-						<Label>Min Price ($)</Label>
-						<Input
-							type='number'
-							placeholder='0.00'
-							value={minPrice}
-							onChange={(e) => setMinPrice(e.target.value)}
-						/>
+					<div className='flex gap-2'>
+						<div className='grid w-full items-center gap-1.5'>
+							<Label htmlFor='minPrice'>Min</Label>
+							<Input
+								type='number'
+								id='minPrice'
+								placeholder='0'
+								value={minPrice}
+								onChange={(e) => setMinPrice(e.target.value)}
+							/>
+						</div>
+						<div className='grid w-full items-center gap-1.5'>
+							<Label htmlFor='maxPrice'>Max</Label>
+							<Input
+								type='number'
+								id='maxPrice'
+								placeholder='1000'
+								value={maxPrice}
+								onChange={(e) => setMaxPrice(e.target.value)}
+							/>
+						</div>
 					</div>
-					<div className='space-y-2'>
-						<Label>Max Price ($)</Label>
-						<Input
-							type='number'
-							placeholder='999.99'
-							value={maxPrice}
-							onChange={(e) => setMaxPrice(e.target.value)}
-						/>
-					</div>
-					<Button onClick={applyPriceFilter} className='w-full'>
+					<Button className='w-full' onClick={applyPriceFilter}>
 						Apply
 					</Button>
-				</CardContent>
-			</Card>
-
-			{/* Sort By */}
-			<Card>
-				<CardHeader>
-					<CardTitle>Sort By</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<RadioGroup
-						value={searchParams.get('sortBy') || 'createdAt'}
-						onValueChange={(value) => updateFilters('sortBy', value)}
-					>
-						<div className='flex items-center space-x-2 mb-2'>
-							<RadioGroupItem value='createdAt' id='newest' />
-							<Label htmlFor='newest' className='cursor-pointer'>
-								Newest First
-							</Label>
-						</div>
-						<div className='flex items-center space-x-2 mb-2'>
-							<RadioGroupItem value='price' id='price-low' />
-							<Label htmlFor='price-low' className='cursor-pointer'>
-								Price: Low to High
-							</Label>
-						</div>
-						<div className='flex items-center space-x-2 mb-2'>
-							<RadioGroupItem value='name' id='name' />
-							<Label htmlFor='name' className='cursor-pointer'>
-								Name: A to Z
-							</Label>
-						</div>
-					</RadioGroup>
 				</CardContent>
 			</Card>
 		</aside>
