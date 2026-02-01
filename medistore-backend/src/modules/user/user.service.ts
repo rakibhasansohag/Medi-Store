@@ -1,6 +1,6 @@
+import { hashPassword, verifyPassword } from '../../helpers/password';
 import { prisma } from '../../lib/prisma';
 import { ISellerRequest, IUpdateProfileInput, UserRole } from '../../types';
-import bcrypt from 'bcrypt';
 
 const getProfile = async (userId: string) => {
 	return await prisma.user.findUnique({
@@ -33,11 +33,14 @@ const changePassword = async (
 	currentPassword: string,
 	newPassword: string,
 ) => {
-	// Get user with password
-	const user = await prisma.user.findUniqueOrThrow({
+	// Get user with credential account
+	const user = await prisma.user.findUnique({
 		where: { id: userId },
 		include: {
 			accounts: {
+				where: {
+					providerId: 'credential',
+				},
 				select: {
 					id: true,
 					password: true,
@@ -51,29 +54,33 @@ const changePassword = async (
 		throw new Error('User not found');
 	}
 
-	// Check if user has a credential account (not Google login)
-	const credentialAccount = user.accounts.find(
-		(acc) => acc.providerId === 'credential',
-	);
+	const credentialAccount = user.accounts[0];
 
 	if (!credentialAccount || !credentialAccount.password) {
 		throw new Error('Cannot change password for social login accounts');
 	}
 
-	// Verify current password
-	const isPasswordValid = await bcrypt.compare(
+	// Log the hash format for debugging
+	console.log('Stored hash:', credentialAccount.password);
+	console.log('Hash length:', credentialAccount.password.length);
+	console.log('Current password attempt:', currentPassword);
+
+	// Verify current password using scrypt
+	const isValid = await verifyPassword(
 		currentPassword,
 		credentialAccount.password,
 	);
 
-	if (!isPasswordValid) {
+	console.log('Password verification result:', isValid);
+
+	if (!isValid) {
 		throw new Error('Current password is incorrect');
 	}
 
-	// Hash new password
-	const hashedPassword = await bcrypt.hash(newPassword, 10);
+	// Hash new password using scrypt
+	const hashedPassword = await hashPassword(newPassword);
 
-	// Update password in account table
+	// Update password
 	await prisma.account.update({
 		where: {
 			id: credentialAccount.id,
@@ -85,7 +92,6 @@ const changePassword = async (
 
 	return { success: true };
 };
-
 const updateProfile = async (userId: string, data: IUpdateProfileInput) => {
 	return await prisma.user.update({
 		where: { id: userId },

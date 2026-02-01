@@ -7,6 +7,7 @@ import { IApiResponse, IUserProfile, ISellerRequest } from '@/types';
 
 const API_URL = env.API_URL;
 
+
 export async function updateProfile(data: {
 	name?: string;
 	phone?: string;
@@ -57,6 +58,7 @@ export async function changePassword(
 	try {
 		const cookieStore = await cookies();
 
+		// Use custom backend endpoint
 		const res = await fetch(`${API_URL}/users/change-password`, {
 			method: 'POST',
 			headers: {

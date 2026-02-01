@@ -18,10 +18,11 @@ export const auth = betterAuth({
 		provider: 'postgresql', // or "mysql", "postgresql",
 	}),
 	cookies: {
-		secure: true,
-		sameSite: 'none',
+		namePrefix: 'better-auth',
+		attributes: {
+			sameSite: 'none',
+		},
 	},
-	advanced: {},
 	baseURL: `${process.env.BETTER_AUTH_URL}/api/v1/auth`,
 	trustedOrigins: [process.env.APP_URL!],
 	user: {
