@@ -158,6 +158,7 @@ export interface IUserProfile {
 	sellerRequestStatus?: SellerRequestStatus;
 	emailVerified: boolean;
 	createdAt: string;
+	accounts?: { providerId: string }[];
 }
 
 export interface ISellerRequest {

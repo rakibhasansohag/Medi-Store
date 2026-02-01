@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { env } from '@/env';
 import { IApiResponse, IUserProfile, ISellerRequest } from '@/types';
@@ -34,7 +34,7 @@ export async function updateProfile(data: {
 			};
 		}
 
-		revalidateTag('profile', 'max');
+		revalidatePath('/dashboard/profile');
 
 		return {
 			success: true,
@@ -45,6 +45,47 @@ export async function updateProfile(data: {
 		return {
 			success: false,
 			message: 'Something went wrong',
+			details: error,
+		};
+	}
+}
+
+export async function changePassword(
+	currentPassword: string,
+	newPassword: string,
+): Promise<IApiResponse<void>> {
+	try {
+		const cookieStore = await cookies();
+
+		const res = await fetch(`${API_URL}/users/change-password`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Cookie: cookieStore.toString(),
+			},
+			body: JSON.stringify({
+				currentPassword,
+				newPassword,
+			}),
+		});
+
+		const result = await res.json();
+
+		if (!result.success) {
+			return {
+				success: false,
+				message: result.message || 'Failed to change password',
+			};
+		}
+
+		return {
+			success: true,
+			message: 'Password changed successfully',
+		};
+	} catch (error) {
+		return {
+			success: false,
+			message: 'Failed to change password',
 			details: error,
 		};
 	}

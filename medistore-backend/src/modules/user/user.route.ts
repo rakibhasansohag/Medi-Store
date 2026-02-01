@@ -4,6 +4,12 @@ import CheckRole, { UserRole } from '../../middleware/auth';
 
 const router = express.Router();
 
+router.post(
+	'/change-password',
+	CheckRole(UserRole.CUSTOMER, UserRole.SELLER, UserRole.ADMIN),
+	UserController.changePassword,
+);
+
 // Authenticated user routes
 router.get(
 	'/profile',

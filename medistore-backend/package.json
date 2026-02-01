@@ -17,6 +17,7 @@
 	},
 	"type": "module",
 	"devDependencies": {
+		"@types/bcryptjs": "^2.4.6",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.6",
 		"@types/node": "^25.0.10",
@@ -30,6 +31,7 @@
 		"@prisma/adapter-pg": "^7.2.0",
 		"@prisma/client": "^7.2.0",
 		"@types/morgan": "^1.9.10",
+		"bcrypt": "^6.0.0",
 		"better-auth": "^1.4.9",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.3",

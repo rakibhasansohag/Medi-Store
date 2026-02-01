@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma';
 import { ISellerRequest, IUpdateProfileInput, UserRole } from '../../types';
+import bcrypt from 'bcrypt';
 
 const getProfile = async (userId: string) => {
 	return await prisma.user.findUnique({
@@ -18,8 +19,71 @@ const getProfile = async (userId: string) => {
 			sellerRequestStatus: true,
 			emailVerified: true,
 			createdAt: true,
+			accounts: {
+				select: {
+					providerId: true,
+				},
+			},
 		},
 	});
+};
+
+const changePassword = async (
+	userId: string,
+	currentPassword: string,
+	newPassword: string,
+) => {
+	// Get user with password
+	const user = await prisma.user.findUniqueOrThrow({
+		where: { id: userId },
+		include: {
+			accounts: {
+				select: {
+					id: true,
+					password: true,
+					providerId: true,
+				},
+			},
+		},
+	});
+
+	if (!user) {
+		throw new Error('User not found');
+	}
+
+	// Check if user has a credential account (not Google login)
+	const credentialAccount = user.accounts.find(
+		(acc) => acc.providerId === 'credential',
+	);
+
+	if (!credentialAccount || !credentialAccount.password) {
+		throw new Error('Cannot change password for social login accounts');
+	}
+
+	// Verify current password
+	const isPasswordValid = await bcrypt.compare(
+		currentPassword,
+		credentialAccount.password,
+	);
+
+	if (!isPasswordValid) {
+		throw new Error('Current password is incorrect');
+	}
+
+	// Hash new password
+	const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+	// Update password in account table
+	await prisma.account.update({
+		where: {
+			id: credentialAccount.id,
+		},
+		data: {
+			password: hashedPassword,
+		},
+	});
+
+	return { success: true };
 };
 
 const updateProfile = async (userId: string, data: IUpdateProfileInput) => {
@@ -162,4 +226,5 @@ export const UserService = {
 	getAllUsers,
 	getUserById,
 	updateUserStatus,
+	changePassword,
 };

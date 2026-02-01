@@ -50,6 +50,47 @@ const updateProfile = async (
 	}
 };
 
+const changePassword = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		if (!req.user) {
+			return res.status(401).json({
+				success: false,
+				message: 'Unauthorized access',
+			});
+		}
+
+		const { currentPassword, newPassword } = req.body;
+
+		if (!currentPassword || !newPassword) {
+			return res.status(400).json({
+				success: false,
+				message: 'Current password and new password are required',
+			});
+		}
+
+		const result = await UserService.changePassword(
+			req.user.id,
+			currentPassword,
+			newPassword,
+		);
+
+		res.status(200).json({
+			success: true,
+			message: 'Password changed successfully',
+			data: result,
+		});
+	} catch (error: any) {
+		res.status(400).json({
+			success: false,
+			message: error.message || 'Failed to change password',
+		});
+	}
+};
+
 const requestSellerRole = async (
 	req: Request,
 	res: Response,
@@ -203,4 +244,5 @@ export const UserController = {
 	getAllUsers,
 	getUserById,
 	updateUserStatus,
+	changePassword,
 };

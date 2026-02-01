@@ -20,7 +20,7 @@ const app: Application = express();
 app.use(morgan('dev'));
 app.use(
 	cors({
-		origin: process.env.APP_URL || 'http://localhost:3000',
+		origin: process.env.APP_URL,
 		credentials: true,
 	}),
 );
