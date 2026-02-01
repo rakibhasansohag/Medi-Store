@@ -57,7 +57,7 @@ export default async function HomePage() {
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
 			/>
 			<main className='flex-1'>
-				<HeroSection categories={categories} />
+				<HeroSection />
 				<CategoriesSection categories={categories} />
 				<FeaturedMedicines medicines={medicines} />
 				<WhyChooseUs />
