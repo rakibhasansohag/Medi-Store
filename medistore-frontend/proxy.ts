@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { userService } from './src/services/user.service';
 import { Roles } from './src/constants/roles';
 
-
-
 export async function proxy(request: NextRequest) {
 	const pathname = request.nextUrl.pathname;
 
@@ -15,6 +13,16 @@ export async function proxy(request: NextRequest) {
 	if (data?.user) {
 		isAuthenticated = true;
 		userRole = data.user.role;
+	}
+
+	// Skip middleware for verify email routes
+	if (pathname.startsWith('/verify-email')) {
+		return NextResponse.next();
+	}
+
+	const sessionToken = request.cookies.get('better-auth.session_token');
+	if (!sessionToken) {
+		return NextResponse.redirect(new URL('/login', request.url));
 	}
 
 	// Not authenticated - redirect to login
