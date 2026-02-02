@@ -370,8 +370,10 @@ var auth = betterAuth({
     // or "mysql", "postgresql",
   }),
   cookies: {
-    secure: true,
-    sameSite: "none"
+    namePrefix: "better-auth",
+    attributes: {
+      sameSite: "none"
+    }
   },
   baseURL: `${process.env.BETTER_AUTH_URL}/api/v1/auth`,
   trustedOrigins: [process.env.APP_URL],
@@ -1735,6 +1737,21 @@ var reviewRouter = router4;
 // src/modules/user/user.route.ts
 import express5 from "express";
 
+// src/helpers/password.ts
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+var scryptAsync = promisify(scrypt);
+async function hashPassword(password) {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = await scryptAsync(password, salt, 64);
+  return `${salt}:${derivedKey.toString("hex")}`;
+}
+async function verifyPassword(password, hash) {
+  const [salt, key] = hash.split(":");
+  const derivedKey = await scryptAsync(password, salt, 64);
+  return key === derivedKey.toString("hex");
+}
+
 // src/modules/user/user.service.ts
 var getProfile = async (userId) => {
   return await prisma.user.findUnique({
@@ -1752,9 +1769,59 @@ var getProfile = async (userId) => {
       businessAddress: true,
       sellerRequestStatus: true,
       emailVerified: true,
-      createdAt: true
+      createdAt: true,
+      accounts: {
+        select: {
+          providerId: true
+        }
+      }
     }
   });
+};
+var changePassword = async (userId, currentPassword, newPassword) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      accounts: {
+        where: {
+          providerId: "credential"
+        },
+        select: {
+          id: true,
+          password: true,
+          providerId: true
+        }
+      }
+    }
+  });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  const credentialAccount = user.accounts[0];
+  if (!credentialAccount || !credentialAccount.password) {
+    throw new Error("Cannot change password for social login accounts");
+  }
+  console.log("Stored hash:", credentialAccount.password);
+  console.log("Hash length:", credentialAccount.password.length);
+  console.log("Current password attempt:", currentPassword);
+  const isValid = await verifyPassword(
+    currentPassword,
+    credentialAccount.password
+  );
+  console.log("Password verification result:", isValid);
+  if (!isValid) {
+    throw new Error("Current password is incorrect");
+  }
+  const hashedPassword = await hashPassword(newPassword);
+  await prisma.account.update({
+    where: {
+      id: credentialAccount.id
+    },
+    data: {
+      password: hashedPassword
+    }
+  });
+  return { success: true };
 };
 var updateProfile = async (userId, data) => {
   return await prisma.user.update({
@@ -1883,7 +1950,8 @@ var UserService = {
   rejectSellerRequest,
   getAllUsers,
   getUserById,
-  updateUserStatus
+  updateUserStatus,
+  changePassword
 };
 
 // src/modules/user/user.controller.ts
@@ -1922,6 +1990,38 @@ var updateProfile2 = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+var changePassword2 = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access"
+      });
+    }
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required"
+      });
+    }
+    const result = await UserService.changePassword(
+      req.user.id,
+      currentPassword,
+      newPassword
+    );
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+      data: result
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Failed to change password"
+    });
   }
 };
 var requestSellerRole2 = async (req, res, next) => {
@@ -2035,11 +2135,17 @@ var UserController = {
   rejectSellerRequest: rejectSellerRequest2,
   getAllUsers: getAllUsers2,
   getUserById: getUserById2,
-  updateUserStatus: updateUserStatus2
+  updateUserStatus: updateUserStatus2,
+  changePassword: changePassword2
 };
 
 // src/modules/user/user.route.ts
 var router5 = express5.Router();
+router5.post(
+  "/change-password",
+  auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
+  UserController.changePassword
+);
 router5.get(
   "/profile",
   auth_default("CUSTOMER" /* CUSTOMER */, "SELLER" /* SELLER */, "ADMIN" /* ADMIN */),
@@ -2084,11 +2190,12 @@ var app = express6();
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: process.env.APP_URL || "http://localhost:3000",
+    origin: process.env.APP_URL,
     credentials: true
   })
 );
 app.use(express6.json());
+app.set("truest proxy", true);
 app.use(express6.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send("Hello World");
