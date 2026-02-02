@@ -27,8 +27,8 @@ export const auth = betterAuth({
 		namePrefix: 'better-auth',
 		attributes: {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production' ? true : false,
-			sameSite: 'none', // <- required for cross-site OAuth redirect
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' requires secure: true
 			path: '/',
 		},
 	},

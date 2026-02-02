@@ -55,7 +55,7 @@ app.use(
 
 
 app.use(express.json());
-app.set('truest proxy', true);
+app.set('trust proxy', true);
 app.use(express.urlencoded({ extended: true }));
 
 // Check Health

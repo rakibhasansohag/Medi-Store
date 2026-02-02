@@ -29,12 +29,7 @@ const nextConfig: NextConfig = {
 		],
 	},
 	async rewrites() {
-		return [
-			{
-				source: '/api/v1/auth/:path*',
-				destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/:path*`,
-			},
-		];
+		return [];
 	},
 };
 

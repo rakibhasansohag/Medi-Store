@@ -378,7 +378,11 @@ var auth = betterAuth({
   cookies: {
     namePrefix: "better-auth",
     attributes: {
-      sameSite: "none"
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      sameSite: "none",
+      // <- required for cross-site OAuth redirect
+      path: "/"
     }
   },
   advanced: {
@@ -2222,7 +2226,7 @@ app.use(
   })
 );
 app.use(express6.json());
-app.set("truest proxy", true);
+app.set("trust proxy", true);
 app.use(express6.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send("Hello World");
