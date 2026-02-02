@@ -26,7 +26,10 @@ export const auth = betterAuth({
 	cookies: {
 		namePrefix: 'better-auth',
 		attributes: {
-			sameSite: 'none',
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production' ? true : false,
+			sameSite: 'none', // <- required for cross-site OAuth redirect
+			path: '/',
 		},
 	},
 	advanced: {
