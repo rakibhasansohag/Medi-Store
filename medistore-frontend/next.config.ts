@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
 				hostname: 'source.unsplash.com',
 			},
 			{ protocol: 'https', hostname: 'picsum.photos' },
+			{
+				protocol: 'https',
+				hostname: 'plus.unsplash.com',
+			},
 		],
 	},
 	async rewrites() {
