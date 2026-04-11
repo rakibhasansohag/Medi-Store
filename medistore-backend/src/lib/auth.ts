@@ -41,7 +41,7 @@ export const auth = betterAuth({
 		disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
 	},
 
-	baseURL: `${process.env.BETTER_AUTH_URL}/api/v1/auth`,
+	baseURL: `${process.env.APP_URL}/api/v1/auth`, // Replaced duplicate BETTER_AUTH_URL with APP_URL
 	trustedOrigins: [process.env.APP_URL!],
 	user: {
 		additionalFields: {
