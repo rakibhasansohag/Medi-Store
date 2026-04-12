@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -13,36 +14,27 @@ import { usePathname } from 'next/navigation';
 export function DashboardBreadcrumb() {
 	const pathname = usePathname();
 
-	const segments = pathname
-		.split('/')
-		.filter(Boolean)
-		.filter((seg) => seg !== 'dashboard');
+	const segments = pathname.split('/').filter(Boolean);
 
 	return (
 		<Breadcrumb>
 			<BreadcrumbList>
-				{/*  HARD CODED HOME */}
+				{/* Home link */}
 				<BreadcrumbItem>
 					<BreadcrumbLink href='/'>Home</BreadcrumbLink>
 				</BreadcrumbItem>
 
-				<BreadcrumbSeparator />
-
-				{/*  DASHBOARD (always shown) */}
-				<BreadcrumbItem>
-					<BreadcrumbLink href='/dashboard'>Dashboard</BreadcrumbLink>
-				</BreadcrumbItem>
-
-				{/*  Dynamic children */}
+				{/* Dynamic segments */}
 				{segments.map((segment, index) => {
-					const href = '/dashboard/' + segments.slice(0, index + 1).join('/');
+					const href = '/' + segments.slice(0, index + 1).join('/');
+					const isLast = index === segments.length - 1;
 					const label = segment.replace(/-/g, ' ');
 
 					return (
-						<div key={href} className='flex items-center'>
+						<React.Fragment key={href}>
 							<BreadcrumbSeparator />
 							<BreadcrumbItem>
-								{index === segments.length - 1 ? (
+								{isLast ? (
 									<BreadcrumbPage className='capitalize'>
 										{label}
 									</BreadcrumbPage>
@@ -52,7 +44,7 @@ export function DashboardBreadcrumb() {
 									</BreadcrumbLink>
 								)}
 							</BreadcrumbItem>
-						</div>
+						</React.Fragment>
 					);
 				})}
 			</BreadcrumbList>
