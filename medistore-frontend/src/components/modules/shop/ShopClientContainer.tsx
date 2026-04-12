@@ -124,6 +124,13 @@ export function ShopClientContainer({
 		fetchData(newState);
 	};
 
+	const hasFilters = !!(
+		filterState.search ||
+		filterState.categoryId ||
+		filterState.minPrice ||
+		filterState.maxPrice
+	);
+
 	// Initialize cache with initial props
 	useEffect(() => {
 		const initialKey = JSON.stringify({
@@ -182,6 +189,8 @@ export function ShopClientContainer({
 										medicines={medicines}
 										pagination={pagination}
 										onPageChange={handlePageChange}
+										onClearFilters={handleClearFilters}
+										hasFilters={hasFilters}
 									/>
 								</div>
 							)}

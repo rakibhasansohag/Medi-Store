@@ -16,15 +16,28 @@ interface ShopContentProps {
 		totalPages: number;
 	};
 	onPageChange?: (page: number) => void;
+	onClearFilters?: () => void;
+	hasFilters?: boolean;
 }
 
 export function ShopContent({
 	medicines,
 	pagination,
 	onPageChange,
+	onClearFilters,
+	hasFilters: externalHasFilters,
 }: ShopContentProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
+
+	const hasFilters =
+		externalHasFilters ??
+		!!(
+			searchParams.get('search') ||
+			searchParams.get('categoryId') ||
+			searchParams.get('minPrice') ||
+			searchParams.get('maxPrice')
+		);
 
 	const navigateToPage = (page: number) => {
 		if (onPageChange) {
@@ -34,6 +47,14 @@ export function ShopContent({
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('page', page.toString());
 		router.push(`/shop?${params.toString()}`);
+	};
+
+	const handleClearFilters = () => {
+		if (onClearFilters) {
+			onClearFilters();
+			return;
+		}
+		router.push('/shop');
 	};
 
 	if (medicines.length === 0) {
@@ -46,9 +67,13 @@ export function ShopContent({
 				<div className='text-6xl mb-4'>🔍</div>
 				<h3 className='text-2xl font-semibold mb-2'>No medicines found</h3>
 				<p className='text-muted-foreground mb-6'>
-					Try adjusting your filters or search terms
+					{hasFilters
+						? 'Try adjusting your filters or search terms'
+						: 'We currently have no medicines in this category.'}
 				</p>
-				<Button onClick={() => router.push('/shop')}>Clear Filters</Button>
+				{hasFilters && (
+					<Button onClick={handleClearFilters}>Clear Filters</Button>
+				)}
 			</motion.div>
 		);
 	}
