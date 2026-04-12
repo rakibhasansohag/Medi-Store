@@ -33,7 +33,11 @@ const getOrderById = async (
 	try {
 		const { id } = req.params;
 
-		const result = await OrderService.getOrderById(id as string);
+		const result = await OrderService.getOrderById(
+			id as string,
+			req.user?.id,
+			req.user?.role,
+		);
 
 		if (!result) {
 			return res.status(404).json({

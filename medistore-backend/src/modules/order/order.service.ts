@@ -82,8 +82,12 @@ const createOrder = async (
 	return order;
 };
 
-const getOrderById = async (orderId: string): Promise<IOrder | null> => {
-	return await prisma.order.findUnique({
+const getOrderById = async (
+	orderId: string,
+	userId?: string,
+	userRole?: string,
+): Promise<IOrder | null> => {
+	const order = await prisma.order.findUnique({
 		where: { id: orderId },
 		include: {
 			items: {
@@ -97,6 +101,23 @@ const getOrderById = async (orderId: string): Promise<IOrder | null> => {
 			},
 		},
 	});
+
+	if (!order) return null;
+
+	// Authorization Check
+	if (userRole === 'ADMIN') return order;
+
+	if (userRole === 'CUSTOMER' && order.customerId === userId) return order;
+
+	if (userRole === 'SELLER') {
+		// Only return if order contains items from this seller
+		const isSellerInvolved = order.items.some(
+			(item) => item.medicine.sellerId === userId,
+		);
+		if (isSellerInvolved) return order;
+	}
+
+	throw new Error('Unauthorized Access!');
 };
 
 const getMyOrders = async (customerId: string): Promise<IOrder[]> => {

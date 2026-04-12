@@ -1,20 +1,21 @@
-import { SellerOrderTable } from '@/components/modules/seller/sellerOrderTables';
+import { SellerOrderDetail } from '@/components/modules/seller/SellerOrderDetail';
 import { orderService } from '@/services/order.service';
+import { notFound } from 'next/navigation';
 
-export default async function SellerOrdersPage() {
-	const ordersRes = await orderService.getAllOrders();
-	const orders = ordersRes.data || [];
+interface PageProps {
+	params: Promise<{ id: string }>;
+}
+
+export default async function SellerOrderDetailPage({ params }: PageProps) {
+	const { id } = await params;
+
+	const { data: order, success } = await orderService.getOrderById(id);
+
+	if (!success || !order) notFound();
 
 	return (
-		<div className='space-y-6'>
-			<div>
-				<h1 className='text-3xl font-bold'>My Orders</h1>
-				<p className='text-muted-foreground'>
-					Orders containing your medicines ({orders.length} total)
-				</p>
-			</div>
-
-			<SellerOrderTable orders={orders} />
+		<div className='container mx-auto p-4 md:p-6 space-y-6'>
+			<SellerOrderDetail order={order} />
 		</div>
 	);
 }

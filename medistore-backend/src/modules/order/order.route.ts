@@ -33,6 +33,10 @@ router.patch(
 );
 
 
-router.get('/:id', OrderController.getOrderById);
+router.get(
+	'/:id',
+	CheckRole(UserRole.ADMIN, UserRole.SELLER, UserRole.CUSTOMER),
+	OrderController.getOrderById,
+);
 
 export const orderRouter: Router = router;

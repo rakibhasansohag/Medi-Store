@@ -849,10 +849,31 @@ var updateMedicine = async (id, data, userId, userRole) => {
 var deleteMedicine = async (id, userId, userRole) => {
   const medicine = await prisma.medicine.findUniqueOrThrow({
     where: { id },
-    select: { id: true, sellerId: true }
+    include: {
+      _count: {
+        select: { orderItems: true }
+      }
+    }
   });
   if (userRole !== "ADMIN" /* ADMIN */ && medicine.sellerId !== userId) {
     throw new Error("Unauthorized: You can only delete your own medicines");
+  }
+  if (medicine._count.orderItems > 0) {
+    if (userRole === "ADMIN" /* ADMIN */) {
+      await prisma.$transaction([
+        prisma.orderItem.deleteMany({
+          where: { medicineId: id }
+        }),
+        prisma.medicine.delete({
+          where: { id }
+        })
+      ]);
+      return;
+    } else {
+      throw new Error(
+        "Cannot delete medicine because it is associated with existing orders. You can set its stock to 0 or mark it as unavailable instead."
+      );
+    }
   }
   await prisma.medicine.delete({
     where: { id }
@@ -1146,8 +1167,8 @@ var createOrder = async (data, customerId) => {
   });
   return order;
 };
-var getOrderById = async (orderId) => {
-  return await prisma.order.findUnique({
+var getOrderById = async (orderId, userId, userRole) => {
+  const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
       items: {
@@ -1161,6 +1182,16 @@ var getOrderById = async (orderId) => {
       }
     }
   });
+  if (!order) return null;
+  if (userRole === "ADMIN") return order;
+  if (userRole === "CUSTOMER" && order.customerId === userId) return order;
+  if (userRole === "SELLER") {
+    const isSellerInvolved = order.items.some(
+      (item) => item.medicine.sellerId === userId
+    );
+    if (isSellerInvolved) return order;
+  }
+  throw new Error("Unauthorized Access!");
 };
 var getMyOrders = async (customerId) => {
   return await prisma.order.findMany({
@@ -1307,7 +1338,11 @@ var createOrder2 = async (req, res, next) => {
 var getOrderById2 = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await OrderService.getOrderById(id);
+    const result = await OrderService.getOrderById(
+      id,
+      req.user?.id,
+      req.user?.role
+    );
     if (!result) {
       return res.status(404).json({
         success: false,
@@ -1421,7 +1456,11 @@ router3.patch(
   auth_default("ADMIN" /* ADMIN */, "SELLER" /* SELLER */),
   OrderController.updateOrderStatus
 );
-router3.get("/:id", OrderController.getOrderById);
+router3.get(
+  "/:id",
+  auth_default("ADMIN" /* ADMIN */, "SELLER" /* SELLER */, "CUSTOMER" /* CUSTOMER */),
+  OrderController.getOrderById
+);
 var orderRouter = router3;
 
 // src/modules/review/review.route.ts
