@@ -166,12 +166,38 @@ const deleteMedicine = async (
 ): Promise<void> => {
 	const medicine = await prisma.medicine.findUniqueOrThrow({
 		where: { id },
-		select: { id: true, sellerId: true },
+		include: {
+			_count: {
+				select: { orderItems: true },
+			},
+		},
 	});
 
 	// Only seller who owns it or admin can delete
 	if (userRole !== UserRole.ADMIN && medicine.sellerId !== userId) {
 		throw new Error('Unauthorized: You can only delete your own medicines');
+	}
+
+	// Check for associated orders
+	if (medicine._count.orderItems > 0) {
+		if (userRole === UserRole.ADMIN) {
+			// If admin, we allow deletion by cascading manually
+			// This is destructive but follows the "admin can also delete that" requirement
+			await prisma.$transaction([
+				prisma.orderItem.deleteMany({
+					where: { medicineId: id },
+				}),
+				prisma.medicine.delete({
+					where: { id },
+				}),
+			]);
+			return;
+		} else {
+			// For sellers, prevent deletion if there are orders to maintain order history integrity
+			throw new Error(
+				'Cannot delete medicine because it is associated with existing orders. You can set its stock to 0 or mark it as unavailable instead.',
+			);
+		}
 	}
 
 	await prisma.medicine.delete({
